@@ -518,6 +518,35 @@ function paintImageBackground(ctx, W, H, baseColor, img, alpha = 0.20) {
   drawCoverImage(ctx, W, H, img, alpha);
 }
 
+function drawVividCoverImage(ctx, W, H, img, alpha) {
+  if (!img.complete || !img.naturalWidth) return;
+  const scale = Math.max(W / img.naturalWidth, H / img.naturalHeight);
+  const iw = img.naturalWidth * scale, ih = img.naturalHeight * scale;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.filter = 'saturate(1.15) contrast(1.08) brightness(1.03)';
+  ctx.drawImage(img, (W - iw) / 2, (H - ih) / 2, iw, ih);
+  ctx.restore();
+}
+
+// Photo background at near-full presence (colourful corners/edges),
+// with a soft inverse-vignette that lightens just the centre writing
+// area so the guide and child stroke stay readable.
+function paintVividPhotoBackground(ctx, W, H, baseColor, img) {
+  ctx.fillStyle = baseColor;
+  ctx.fillRect(0, 0, W, H);
+  drawVividCoverImage(ctx, W, H, img, 0.85);
+
+  const cx = W / 2, cy = H / 2;
+  const innerR = Math.min(W, H) * 0.16;
+  const outerR = Math.max(W, H) * 0.62;
+  const g = ctx.createRadialGradient(cx, cy, innerR, cx, cy, outerR);
+  g.addColorStop(0, 'rgba(255,255,255,0.55)');
+  g.addColorStop(1, 'rgba(255,255,255,0.10)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+}
+
 /* ============================================================
    WORLD CONFIGURATIONS  (sand / snow / soccer only, for now)
    ============================================================ */
@@ -952,17 +981,13 @@ const WORLDS = {
     guideOpacity:      0.90,
     childStrokeColor:  '#00BFA5',
     childOutlineColor: '#004D40',
-    childShadowColor:  'rgba(255,255,255,0.55)',
-    childLineWidth:    9,
+    childShadowColor:  'rgba(255,255,255,0.65)',
+    childLineWidth:    11,
     msgReward:         'אבקת הפיות עוברת בעדינות ומנקה',
     msgClear:          'ננסה שוב ברוגע',
 
     paintBackground(ctx, W, H) {
-      paintImageBackground(ctx, W, H, '#F3E5FF', ASSETS.fairyBg, 0.42);
-      ctx.save();
-      ctx.fillStyle = 'rgba(255,255,255,0.30)';
-      ctx.fillRect(0, 0, W, H);
-      ctx.restore();
+      paintVividPhotoBackground(ctx, W, H, '#F3E5FF', ASSETS.fairyBg);
     },
 
     drawStroke(ctx, x1, y1, x2, y2) {
@@ -1011,17 +1036,13 @@ const WORLDS = {
     guideOpacity:      0.90,
     childStrokeColor:  '#FF1744',
     childOutlineColor: '#1B3D14',
-    childShadowColor:  'rgba(255,255,255,0.45)',
-    childLineWidth:    9,
+    childShadowColor:  'rgba(255,255,255,0.60)',
+    childLineWidth:    11,
     msgReward:         'הדינוזאור עובר בעדינות ומנקה',
     msgClear:          'ננסה שוב ברוגע',
 
     paintBackground(ctx, W, H) {
-      paintImageBackground(ctx, W, H, '#E3F0E3', ASSETS.jungleBg, 0.42);
-      ctx.save();
-      ctx.fillStyle = 'rgba(255,255,255,0.30)';
-      ctx.fillRect(0, 0, W, H);
-      ctx.restore();
+      paintVividPhotoBackground(ctx, W, H, '#E3F0E3', ASSETS.jungleBg);
     },
 
     drawStroke(ctx, x1, y1, x2, y2) {
