@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>פינת הכתיבה</title>
+  <style>
+    /* ── Reset ───────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Page base ────────────────────────────────────────────── */
+    html {
+      height: 100%;
+      overscroll-behavior: none;
+    }
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+      font-family: 'Arial Hebrew', 'David', 'Heebo', Arial, sans-serif;
+      direction: rtl;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 14px 18px;
+      gap: 6px;
+      overflow-x: hidden;
+      overscroll-behavior: none;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ── World backgrounds ────────────────────────────────────── */
+    body.world-sand {
+      background: linear-gradient(to bottom,
+        #4488BB 0%, #6EB0CF 22%, #A0CCDF 42%, #D8B47A 56%, #C49060 100%);
+    }
+    body.world-fire {
+      background: linear-gradient(135deg,
+        #090615 0%, #150828 40%, #0A1540 70%, #120830 100%);
+    }
+    body.world-river {
+      background: linear-gradient(to bottom,
+        #1A5A72 0%, #2280A0 30%, #2EA4B8 60%, #1A7090 100%);
+    }
+    body.world-soccer {
+      background: linear-gradient(to bottom,
+        #1A5C1E 0%, #237222 40%, #1F6A1E 70%, #163E14 100%);
+    }
+    body.world-jungle {
+      background: linear-gradient(to bottom,
+        #BFE3C9 0%, #9ED9A8 35%, #6FBF7A 70%, #4FA354 100%);
+    }
+    body.world-rainbow {
+      background: linear-gradient(135deg,
+        #EAF6FF 0%, #F5E6FF 40%, #FDF1FA 70%, #FFE8F5 100%);
+    }
+    body.world-candy {
+      background: linear-gradient(to bottom,
+        #FFE0EC 0%, #FFD0E0 40%, #FFC2D6 70%, #FFB0CC 100%);
+    }
+    body.world-construction {
+      background: linear-gradient(to bottom,
+        #F5E6C8 0%, #EAD7AE 35%, #E0C088 70%, #C9A86C 100%);
+    }
+    body.world-racing {
+      background: linear-gradient(to bottom,
+        #E8ECEF 0%, #D3DBE2 35%, #B8C4CE 70%, #9CACB8 100%);
+    }
+    body.world-snow {
+      background: linear-gradient(to bottom,
+        #F0F6FF 0%, #DCEBFA 35%, #C3DEF5 70%, #A9CFEF 100%);
+    }
+
+    /* ── Title ────────────────────────────────────────────────── */
+    h1 {
+      font-size: clamp(1.1rem, 3.5vw, 1.7rem);
+      font-weight: 700;
+    }
+    body.world-sand   h1 { color: #163C5E; text-shadow: 0 1px 5px rgba(255,255,255,0.55); }
+    body.world-fire   h1 { color: #D0A8FF; text-shadow: 0 0 12px rgba(160,80,255,0.55); }
+    body.world-river  h1 { color: #FFFFFF;  text-shadow: 0 1px 4px rgba(0,50,80,0.5); }
+    body.world-soccer h1 { color: #FFFFFF;  text-shadow: 0 1px 6px rgba(0,40,0,0.6); }
+    body.world-jungle       h1 { color: #1F5C1A; text-shadow: 0 1px 5px rgba(255,255,255,0.55); }
+    body.world-rainbow      h1 { color: #7A3FA0; text-shadow: 0 1px 5px rgba(255,255,255,0.65); }
+    body.world-candy        h1 { color: #C2185B; text-shadow: 0 1px 5px rgba(255,255,255,0.6); }
+    body.world-construction h1 { color: #5A4632; text-shadow: 0 1px 5px rgba(255,255,255,0.55); }
+    body.world-racing       h1 { color: #1857A8; text-shadow: 0 1px 5px rgba(255,255,255,0.6); }
+    body.world-snow         h1 { color: #1565C0; text-shadow: 0 1px 5px rgba(255,255,255,0.65); }
+
+    /* ── Start screen ─────────────────────────────────────────── */
+    #startScreen {
+      display: flex; flex-direction: column; align-items: center;
+      width: 100%; max-width: 560px; gap: 8px;
+    }
+    #startScreen h1 { text-align: center; }
+    .sectionLabel {
+      font-size: clamp(0.75rem, 2.0vw, 0.88rem);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      opacity: 0.78;
+      margin-top: 4px;
+    }
+    body.world-sand   .sectionLabel { color: #163C5E; }
+    body.world-fire   .sectionLabel { color: #C0A0FF; }
+    body.world-river  .sectionLabel { color: #D0EEFF; }
+    body.world-soccer .sectionLabel { color: #C8F0C0; }
+    body.world-jungle       .sectionLabel { color: #1F5C1A; }
+    body.world-rainbow      .sectionLabel { color: #7A3FA0; }
+    body.world-candy        .sectionLabel { color: #C2185B; }
+    body.world-construction .sectionLabel { color: #5A4632; }
+    body.world-racing       .sectionLabel { color: #1857A8; }
+    body.world-snow         .sectionLabel { color: #1565C0; }
+
+    /* ── World selector ───────────────────────────────────────── */
+    #worldGrid { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+
+    .world-btn {
+      padding: 7px 12px;
+      font-size: clamp(0.78rem, 2.2vw, 0.93rem);
+      font-family: inherit;
+      font-weight: 600;
+      border: 1.5px solid rgba(255,255,255,0.28);
+      border-radius: 50px;
+      cursor: pointer;
+      background: rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.75);
+      white-space: nowrap;
+      transition: background 0.18s, border-color 0.18s, color 0.18s;
+    }
+    .world-btn:not(:disabled):hover { background: rgba(255,255,255,0.22); }
+    .world-btn.active {
+      background: rgba(255,255,255,0.32);
+      border-color: rgba(255,255,255,0.65);
+      color: #fff;
+    }
+
+    /* ── Practice-type selector ───────────────────────────────── */
+    #typeBar {
+      display: flex;
+      gap: 0;
+      background: rgba(0,0,0,0.20);
+      border-radius: 50px;
+      padding: 3px;
+    }
+    .type-btn {
+      padding: 7px 16px;
+      font-size: clamp(0.78rem, 2.1vw, 0.92rem);
+      font-family: inherit;
+      font-weight: 600;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      background: transparent;
+      color: rgba(255,255,255,0.62);
+      transition: background 0.18s, color 0.18s;
+    }
+    .type-btn.active { background: rgba(255,255,255,0.28); color: #fff; }
+
+    /* ── Start button ──────────────────────────────────────────── */
+    #startBtn {
+      margin-top: 6px;
+      padding: 13px 38px;
+      font-size: clamp(0.95rem, 2.8vw, 1.15rem);
+      font-family: inherit; font-weight: 700; border: none; border-radius: 50px;
+      cursor: pointer; letter-spacing: 0.03em;
+      background: linear-gradient(135deg,#1A6E1C,#2CA030 60%,#44B844);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      transition: transform 0.10s, box-shadow 0.10s;
+    }
+    #startBtn:hover  { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.30); }
+    #startBtn:active { transform: translateY(1px) scale(0.97); }
+
+    /* ── Practice screen ──────────────────────────────────────── */
+    #practiceScreen {
+      position: relative;
+      display: flex; flex-direction: column; align-items: center;
+      width: 100%; gap: 6px;
+    }
+    #backBtn {
+      position: absolute; top: 0; left: 0; z-index: 5;
+      width: 38px; height: 38px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.15rem; line-height: 1;
+      border: 1.5px solid rgba(255,255,255,0.30);
+      border-radius: 50%;
+      background: rgba(255,255,255,0.14);
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.18s;
+    }
+    #backBtn:hover { background: rgba(255,255,255,0.26); }
+
+    /* ── Letter / item indicator ──────────────────────────────── */
+    #letterIndicator {
+      font-size: clamp(0.80rem, 2.1vw, 0.98rem);
+      min-height: 1.3em;
+    }
+    body.world-sand   #letterIndicator { color: #204E70; }
+    body.world-fire   #letterIndicator { color: #C0A0E0; }
+    body.world-river  #letterIndicator { color: rgba(255,255,255,0.85); }
+    body.world-soccer #letterIndicator { color: rgba(255,255,255,0.90); }
+    body.world-jungle       #letterIndicator { color: #1F5C1A; }
+    body.world-rainbow      #letterIndicator { color: #7A3FA0; }
+    body.world-candy        #letterIndicator { color: #A8155A; }
+    body.world-construction #letterIndicator { color: #5A4632; }
+    body.world-racing       #letterIndicator { color: #33414F; }
+    body.world-snow         #letterIndicator { color: #1565C0; }
+
+    /* ── Message (positive reinforcement) ─────────────────────── */
+    #message {
+      min-height: 1.8em;
+      font-size: clamp(0.90rem, 3.1vw, 1.28rem);
+      font-weight: 700;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.45s ease;
+    }
+    #message.show { opacity: 1; }
+    body.world-sand   #message { color: #122F4A; text-shadow: 0 1px 4px rgba(255,255,255,0.5); }
+    body.world-fire   #message { color: #FFE4A0; text-shadow: 0 0 10px rgba(255,180,40,0.6); }
+    body.world-river  #message { color: #FFFFFF;  text-shadow: 0 1px 6px rgba(0,60,100,0.5); }
+    body.world-soccer #message { color: #FFFFA0; text-shadow: 0 1px 6px rgba(0,60,0,0.6); }
+    body.world-jungle       #message { color: #1B4D17; text-shadow: 0 1px 4px rgba(255,255,255,0.5); }
+    body.world-rainbow      #message { color: #9C3FB0; text-shadow: 0 1px 4px rgba(255,255,255,0.6); }
+    body.world-candy        #message { color: #C2185B; text-shadow: 0 1px 4px rgba(255,255,255,0.55); }
+    body.world-construction #message { color: #7A5A30; text-shadow: 0 1px 4px rgba(255,255,255,0.5); }
+    body.world-racing       #message { color: #1857A8; text-shadow: 0 1px 4px rgba(255,255,255,0.55); }
+    body.world-snow         #message { color: #1565C0; text-shadow: 0 1px 4px rgba(255,255,255,0.6); }
+
+    /* ── Canvas wrapper ───────────────────────────────────────── */
+    #canvasWrap { border-radius: 14px; overflow: hidden; }
+    body.world-sand   #canvasWrap {
+      box-shadow: 0 0 0 4px #9A6228, 0 0 0 7px #6E420E, 0 10px 30px rgba(0,0,0,0.28);
+    }
+    body.world-fire   #canvasWrap {
+      box-shadow: 0 0 0 3px #7030C0, 0 0 0 6px #2A1050,
+                  0 0 28px rgba(140,60,255,0.40), 0 8px 24px rgba(0,0,0,0.55);
+    }
+    body.world-river  #canvasWrap {
+      box-shadow: 0 0 0 3px #1A9AAA, 0 0 0 6px #0D5E70,
+                  0 0 18px rgba(40,180,210,0.30), 0 8px 24px rgba(0,0,0,0.35);
+    }
+    body.world-soccer #canvasWrap {
+      box-shadow: 0 0 0 3px #FFFFFF, 0 0 0 6px #1A6018,
+                  0 0 18px rgba(100,200,80,0.25), 0 8px 24px rgba(0,0,0,0.35);
+    }
+    body.world-jungle #canvasWrap {
+      box-shadow: 0 0 0 4px #8ED66A, 0 0 0 7px #2E7D2A, 0 10px 26px rgba(0,0,0,0.22);
+    }
+    body.world-rainbow #canvasWrap {
+      box-shadow: 0 0 0 4px #FFB0E8, 0 0 0 7px #C067D9, 0 10px 26px rgba(150,80,180,0.25);
+    }
+    body.world-candy #canvasWrap {
+      box-shadow: 0 0 0 4px #FFA8CC, 0 0 0 7px #E0539B, 0 10px 26px rgba(194,24,91,0.22);
+    }
+    body.world-construction #canvasWrap {
+      box-shadow: 0 0 0 4px #F5CC5C, 0 0 0 7px #B8860B, 0 10px 26px rgba(0,0,0,0.22);
+    }
+    body.world-racing #canvasWrap {
+      box-shadow: 0 0 0 4px #9CD0FF, 0 0 0 7px #1857A8, 0 10px 26px rgba(0,0,0,0.22);
+    }
+    body.world-snow #canvasWrap {
+      box-shadow: 0 0 0 4px #D6F0FF, 0 0 0 7px #4FA8E0, 0 10px 24px rgba(20,90,180,0.20);
+    }
+
+    #mainCanvas {
+      display: block;
+      cursor: crosshair;
+      touch-action: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ── Action buttons ───────────────────────────────────────── */
+    .btn-row {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      justify-content: center; width: 100%; max-width: 520px;
+    }
+    .btn-row button {
+      flex: 1 1 auto; min-width: 88px; min-height: 48px;
+      padding: 11px 15px;
+      font-size: clamp(0.84rem, 2.4vw, 1.00rem);
+      font-family: inherit; font-weight: 700; border: none; border-radius: 50px;
+      cursor: pointer; letter-spacing: 0.03em;
+      transition: transform 0.10s, box-shadow 0.10s;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.22);
+    }
+    .btn-row button:not(:disabled):hover  { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.28); }
+    .btn-row button:not(:disabled):active { transform: translateY(1px) scale(0.96); }
+    .btn-row button:disabled               { opacity: 0.50; cursor: not-allowed; }
+
+    #showBtn   { background: linear-gradient(135deg,#3A5C7A,#5E89AC); color:#fff; }
+    #rewardBtn { color: #fff; }   /* gradient set by JS */
+    #clearBtn  { background: linear-gradient(135deg,#BB7A30,#D6A252); color:#fff; }
+    #nextBtn   { background: linear-gradient(135deg,#276B2A,#4CB050); color:#fff; }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+       START SCREEN — therapist picks practice type + world
+       ============================================================ -->
+  <div id="startScreen">
+    <h1>פינת הכתיבה</h1>
+
+    <p class="sectionLabel">סוג תרגול</p>
+    <div id="typeBar">
+      <button class="type-btn active" data-type="letters">אותיות</button>
+      <button class="type-btn" data-type="numbers">מספרים</button>
+      <button class="type-btn" data-type="mixed">מעורב</button>
+    </div>
+
+    <p class="sectionLabel">באיזה עולם נכתוב היום?</p>
+    <div id="worldGrid">
+      <button class="world-btn" data-world="sand">🏖️ חול</button>
+      <button class="world-btn" data-world="fire">🔥 אש קסומה</button>
+      <button class="world-btn" data-world="river">💧 נהר</button>
+      <button class="world-btn" data-world="soccer">⚽ כדורגל</button>
+      <button class="world-btn" data-world="jungle">🦕 ג'ונגל</button>
+      <button class="world-btn" data-world="rainbow">🦄 קשת</button>
+      <button class="world-btn" data-world="candy">🍬 ממתקים</button>
+      <button class="world-btn" data-world="construction">🚜 בנייה</button>
+      <button class="world-btn" data-world="racing">🏎️ מרוץ</button>
+      <button class="world-btn" data-world="snow">❄️ שלג</button>
+    </div>
+
+    <button id="startBtn">▶ התחלה</button>
+  </div>
+
+  <!-- ============================================================
+       PRACTICE SCREEN — minimal: indicator, canvas, 4 buttons
+       ============================================================ -->
+  <div id="practiceScreen" class="hidden">
+    <button id="backBtn" aria-label="חזרה להגדרות" title="חזרה להגדרות">⚙</button>
+
+    <div id="letterIndicator"></div>
+    <div id="message" role="status" aria-live="polite"></div>
+
+    <div id="canvasWrap">
+      <canvas id="mainCanvas"></canvas>
+    </div>
+
+    <div class="btn-row">
+      <button id="showBtn">👁️ הצג</button>
+      <button id="rewardBtn"></button>
+      <button id="clearBtn">🧹 ניקוי רגוע</button>
+      <button id="nextBtn">➡️ פריט הבא</button>
+    </div>
+  </div>
+
+<script>
+"use strict";
+
+/* ============================================================
+   PRACTICE ITEMS — letters / numbers / mixed
+   ============================================================ */
+
+const HEBREW_LETTERS = ['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
+const NUMBERS        = ['0','1','2','3','4','5','6','7','8','9'];
+
+function getItems(type) {
+  if (type === 'numbers') return NUMBERS;
+  if (type === 'mixed')   return [...HEBREW_LETTERS, ...NUMBERS];
+  return HEBREW_LETTERS;
+}
+
+/* ============================================================
+   CANVAS
+   ============================================================ */
+
+const canvas = document.getElementById('mainCanvas');
+const ctx    = canvas.getContext('2d');
+
+/* ============================================================
+   SOCCER BALL HELPERS  (module-level, used by the soccer world)
+   ============================================================ */
+
+// Draw a single regular hexagon centred at (cx, cy) with circumradius r.
+// Caller must call ctx.fill() or ctx.stroke() after this.
+function drawHex(cx, cy, r) {
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const a  = (i * Math.PI / 3) - Math.PI / 6;
+    const px = cx + r * Math.cos(a);
+    const py = cy + r * Math.sin(a);
+    i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+}
+
+// Draw a recognisable soccer ball centred at (cx, cy) with radius r,
+// rotated by `angle` radians.  Uses global ctx.
+function drawSoccerBall(cx, cy, r, angle) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(angle);
+
+  // Clip rendering to the ball circle
+  ctx.beginPath();
+  ctx.arc(0, 0, r, 0, Math.PI * 2);
+  ctx.clip();
+
+  // White base
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(-r, -r, r * 2, r * 2);
+
+  // Black hexagonal patches — classic ball pattern
+  ctx.fillStyle = '#111111';
+  drawHex(0, 0, r * 0.33); ctx.fill();                   // centre patch
+  for (let i = 0; i < 5; i++) {                          // 5 surrounding patches
+    const a  = (i * 2 * Math.PI / 5) - Math.PI / 2;
+    const px = Math.cos(a) * r * 0.62;
+    const py = Math.sin(a) * r * 0.62;
+    drawHex(px, py, r * 0.28); ctx.fill();
+  }
+
+  // Specular highlight — gives the ball a 3-D feel
+  const hl = ctx.createRadialGradient(-r * 0.30, -r * 0.28, r * 0.06, 0, 0, r);
+  hl.addColorStop(0,   'rgba(255,255,255,0.40)');
+  hl.addColorStop(0.5, 'rgba(255,255,255,0.0)');
+  hl.addColorStop(1,   'rgba(0,0,0,0)');
+  ctx.fillStyle = hl;
+  ctx.fillRect(-r, -r, r * 2, r * 2);
+
+  ctx.restore();  // releases clip
+
+  // Outline
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(30,30,30,0.85)';
+  ctx.lineWidth   = Math.max(1.5, r * 0.07);
+  ctx.stroke();
+  ctx.restore();
+}
+
+/* ============================================================
+   IMAGE ASSETS  (backgrounds + characters for the themed worlds)
+   ============================================================ */
+
+// Loads an image; if it finishes loading after the canvas was already
+// painted, repaint so the asset appears without needing user interaction.
+function loadImg(src) {
+  const img = new Image();
+  img.onload = () => { if (!isAnimating) buildBase(); };
+  img.src = src;
+  return img;
+}
+
+const ASSETS = {
+  jungleBg:       loadImg('assets/backgrounds/jungle-bg.svg'),
+  dino:           loadImg('assets/characters/dino.svg'),
+  rainbowBg:      loadImg('assets/backgrounds/rainbow-bg.svg'),
+  unicorn:        loadImg('assets/characters/unicorn.svg'),
+  candyBg:        loadImg('assets/backgrounds/candy-bg.svg'),
+  candyChar:      loadImg('assets/characters/candy-piece.svg'),
+  constructionBg: loadImg('assets/backgrounds/construction-bg.svg'),
+  bulldozer:      loadImg('assets/characters/bulldozer.svg'),
+  racingBg:       loadImg('assets/backgrounds/racing-bg.svg'),
+  raceCar:        loadImg('assets/characters/race-car.svg'),
+  snowBg:         loadImg('assets/backgrounds/snow-bg.svg'),
+};
+
+// Draws `img` scaled to cover the W×H canvas, centred, at `alpha` opacity.
+// Used so background art sits subtly around the writing area without
+// reducing the contrast of the child's strokes.
+function drawCoverImage(ctx, W, H, img, alpha) {
+  if (!img.complete || !img.naturalWidth) return;
+  const scale = Math.max(W / img.naturalWidth, H / img.naturalHeight);
+  const iw = img.naturalWidth * scale, ih = img.naturalHeight * scale;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.drawImage(img, (W - iw) / 2, (H - ih) / 2, iw, ih);
+  ctx.restore();
+}
+
+// Flat calm fill + low-alpha cover image — the standard background recipe
+// for the new themed worlds.
+function paintImageBackground(ctx, W, H, baseColor, img, alpha = 0.20) {
+  ctx.fillStyle = baseColor;
+  ctx.fillRect(0, 0, W, H);
+  drawCoverImage(ctx, W, H, img, alpha);
+}
+
+// Generic "joyful erase" animation: a character image glides once across
+// the writing area (optionally with a gentle up/down bob and a soft
+// sparkle trail), revealing the clean surface behind it as it passes —
+// the same reveal technique as the soccer world's ball, generalised for
+// an arbitrary image and direction.
+function slideCharacterReveal(ctx, snap, W, H, img, onDone, opts = {}) {
+  const DUR   = opts.duration ?? 2800;
+  const rtl   = !!opts.rtl;
+  const size  = (opts.size ?? 0.30) * Math.min(W, H);
+  const baseY = (opts.yFrac ?? 0.58) * H;
+  const bob   = opts.bob ?? 0;
+  const trail = opts.trail || null;   // optional array of sparkle colors
+  const sparkles = [];
+  const t0 = performance.now();
+
+  (function frame(now) {
+    const raw    = Math.min((now - t0) / DUR, 1);
+    const travel = W + size * 2;
+    const x = rtl ? (W + size) - raw * travel : -size + raw * travel;
+    const y = baseY - Math.sin(raw * Math.PI) * bob;
+
+    ctx.putImageData(snap, 0, 0);
+
+    // Reveal the clean base behind the area the character has passed.
+    if (baseSnap) {
+      if (!rtl) {
+        const cleanW = Math.max(0, Math.min(W, Math.floor(x + size * 0.5)));
+        if (cleanW > 0) ctx.putImageData(baseSnap, 0, 0, 0, 0, cleanW, H);
+      } else {
+        const revealX = Math.max(0, Math.min(W, Math.floor(x + size * 0.5)));
+        if (revealX < W) ctx.putImageData(baseSnap, 0, 0, revealX, 0, W - revealX, H);
+      }
+    }
+
+    // Optional soft sparkle trail behind the character.
+    if (trail) {
+      if (Math.random() < 0.6) {
+        sparkles.push({
+          x: x + (rtl ? size * 0.45 : -size * 0.30),
+          y: y + (Math.random() - 0.5) * size * 0.5,
+          r: 2 + Math.random() * 3,
+          life: 1,
+          color: trail[Math.floor(Math.random() * trail.length)],
+        });
+      }
+      for (const s of sparkles) {
+        if (s.life <= 0) continue;
+        s.life -= 0.025;
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, s.life);
+        ctx.fillStyle = s.color;
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    if (img.complete && img.naturalWidth) {
+      ctx.drawImage(img, x - size / 2, y - size / 2, size, size);
+    }
+
+    raw < 1 ? requestAnimationFrame(frame) : onDone();
+  })(performance.now());
+}
+
+/* ============================================================
+   WORLD CONFIGURATIONS
+   ============================================================ */
+
+const WORLDS = {
+
+  /* ─── 🏖️ Sand ─────────────────────────────────────────────── */
+  sand: {
+    rewardLabel:       '🌊 שלח גל',
+    rewardBtnGradient: 'linear-gradient(135deg,#1254AF,#0292D4 60%,#20C4DC)',
+    dottedColor:       'rgba(150,85,25,0.32)',
+    msgReward:         'הים בא לחגוג את האות שלך',
+    msgClear:          'ננסה שוב ברוגע',
+
+    paintBackground(ctx, W, H) {
+      ctx.fillStyle = '#C8935A'; ctx.fillRect(0, 0, W, H);
+      const g = ctx.createLinearGradient(0, 0, 0, H);
+      g.addColorStop(0, 'rgba(255,205,130,0.16)');
+      g.addColorStop(1, 'rgba(80,40,5,0.12)');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      for (let i = 0; i < 3800; i++) {
+        const gx=Math.random()*W, gy=Math.random()*H, r=Math.random()*1.5+0.2;
+        ctx.beginPath(); ctx.arc(gx, gy, r, 0, Math.PI*2);
+        ctx.fillStyle = Math.random()>0.52
+          ? `rgba(225,168,82,${(Math.random()*0.22+0.06).toFixed(2)})`
+          : `rgba(115,58,15,${(Math.random()*0.18+0.05).toFixed(2)})`;
+        ctx.fill();
+      }
+      for (let y=15; y<H; y+=13+Math.floor(Math.random()*10)) {
+        ctx.beginPath(); ctx.moveTo(0,y);
+        for (let x=0; x<=W; x+=6) ctx.lineTo(x, y+Math.sin(x*0.055+y*0.18)*1.6);
+        ctx.strokeStyle='rgba(135,72,20,0.055)'; ctx.lineWidth=1; ctx.stroke();
+      }
+    },
+
+    drawStroke(ctx, x1, y1, x2, y2) {
+      ctx.save(); ctx.lineCap='round'; ctx.lineJoin='round';
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+      ctx.strokeStyle='rgba(210,158,75,0.44)'; ctx.lineWidth=17; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+      ctx.strokeStyle='#5A2C0C'; ctx.lineWidth=7; ctx.stroke();
+      ctx.restore();
+    },
+
+    rewardAnimation(ctx, snap, W, H, onDone) {
+      const DUR=2400, t0=performance.now();
+      (function frame(now) {
+        const raw=Math.min((now-t0)/DUR,1), ease=1-Math.pow(1-raw,2.8), elap=now-t0;
+        const wx=(W+50)-ease*(W+120);
+        ctx.putImageData(snap, 0, 0); ctx.save();
+        function wl() {
+          ctx.moveTo(wx,0);
+          for(let y=0;y<=H;y+=4)
+            ctx.lineTo(wx+Math.sin(y*0.038+elap*0.0055)*15+Math.sin(y*0.082+elap*0.0095)*7, y);
+        }
+        ctx.beginPath(); wl(); ctx.lineTo(W+10,H); ctx.lineTo(W+10,0); ctx.closePath();
+        ctx.fillStyle='rgba(18,118,200,0.65)'; ctx.fill();
+        ctx.beginPath(); wl(); ctx.lineTo(W+10,H); ctx.lineTo(W+10,0); ctx.closePath();
+        const sh=ctx.createLinearGradient(0,0,0,H);
+        sh.addColorStop(0,'rgba(200,235,255,0.18)'); sh.addColorStop(1,'rgba(0,0,0,0)');
+        ctx.fillStyle=sh; ctx.fill();
+        ctx.beginPath(); wl();
+        ctx.strokeStyle='rgba(235,250,255,0.92)'; ctx.lineWidth=6;
+        ctx.lineCap='round'; ctx.lineJoin='round'; ctx.stroke();
+        ctx.restore();
+        raw<1 ? requestAnimationFrame(frame) : onDone();
+      })(performance.now());
+    },
+  },
+
+  /* ─── 🔥 Magical Fire ─────────────────────────────────────── */
+  fire: {
+    rewardLabel:       '✨ שחרר ניצוצות',
+    rewardBtnGradient: 'linear-gradient(135deg,#5010A0,#8030D8 60%,#B050FF)',
+    dottedColor:       'rgba(160,110,255,0.40)',
+    msgReward:         'הניצוצות חוגגים!',
+    msgClear:          'ננסה שוב ברוגע',
+
+    paintBackground(ctx, W, H) {
+      ctx.fillStyle='#0E0B1E'; ctx.fillRect(0,0,W,H);
+      const glow=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,Math.max(W,H)*0.65);
+      glow.addColorStop(0,'rgba(100,40,200,0.20)');
+      glow.addColorStop(0.5,'rgba(60,20,120,0.10)');
+      glow.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=glow; ctx.fillRect(0,0,W,H);
+      for(let i=0;i<600;i++){
+        const sx=Math.random()*W, sy=Math.random()*H;
+        const sz=Math.random()<0.80 ? 0.8 : Math.random()*1.8+0.5;
+        ctx.fillStyle=`rgba(255,255,255,${(Math.random()*0.50+0.15).toFixed(2)})`;
+        ctx.fillRect(sx,sy,sz,sz);
+      }
+    },
+
+    drawStroke(ctx, x1, y1, x2, y2) {
+      ctx.save(); ctx.lineCap='round'; ctx.lineJoin='round';
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+      ctx.strokeStyle='rgba(255,160,20,0.18)'; ctx.lineWidth=22; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+      ctx.strokeStyle='rgba(255,210,60,0.55)'; ctx.lineWidth=12; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+      ctx.strokeStyle='rgba(255,245,200,0.92)'; ctx.lineWidth=5; ctx.stroke();
+      ctx.restore();
+    },
+
+    rewardAnimation(ctx, snap, W, H, onDone) {
+      const COLORS=['#FFFFFF','#FFEEAA','#FFD060','#FFAB40','#E0AAFF','#C8E8FF','#FFC080','#FFEEDD'];
+      const pts=Array.from({length:130},()=>({
+        x:W*0.10+Math.random()*W*0.80, y:H*0.10+Math.random()*H*0.80,
+        vx:(Math.random()-0.5)*7, vy:(Math.random()-0.5)*7-0.8,
+        r:Math.random()*3.5+1.5, color:COLORS[Math.floor(Math.random()*COLORS.length)],
+        life:0.6+Math.random()*0.4, decay:0.008+Math.random()*0.012,
+      }));
+      (function frame() {
+        ctx.putImageData(snap,0,0);
+        let alive=false;
+        for(const p of pts){
+          if(p.life<=0) continue; alive=true;
+          p.x+=p.vx; p.y+=p.vy; p.vy+=0.07; p.life-=p.decay;
+          const a=Math.max(0,p.life);
+          ctx.save(); ctx.globalAlpha=a; ctx.fillStyle=p.color;
+          ctx.beginPath(); ctx.arc(p.x,p.y,p.r*a+0.5,0,Math.PI*2); ctx.fill();
+          ctx.restore();
+        }
+        alive ? requestAnimationFrame(frame) : onDone();
+      })();
+    },
+  },
+
+  /* ─── 💧 River ─────────────────────────────────────────────── */
+  river: {
+    rewardLabel:       '💧 שלח זרם',
+    rewardBtnGradient: 'linear-gradient(135deg,#0D6A88,#1A9BAA 60%,#22C4D0)',
+    dottedColor:       'rgba(220,245,255,0.42)',
+    msgReward:         'הנהר לוקח את הציור שלך!',
+    msgClear:          'ננסה שוב ברוגע',
+
+    paintBackground(ctx, W, H) {
+      ctx.fillStyle='#2A8BA0'; ctx.fillRect(0,0,W,H);
+      const g=ctx.createLinearGradient(0,0,W,H);
+      g.addColorStop(0,'rgba(80,190,210,0.25)');
+      g.addColorStop(0.5,'rgba(200,240,250,0.15)');
+      g.addColorStop(1,'rgba(10,80,110,0.20)');
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+      for(let y=8;y<H;y+=14+Math.floor(Math.random()*8)){
+        ctx.beginPath(); ctx.moveTo(0,y);
+        for(let x=0;x<=W;x+=6) ctx.lineTo(x, y+Math.sin(x*0.045+y*0.12)*2.2);
+        ctx.strokeStyle=`rgba(160,225,240,${(Math.random()*0.08+0.04).toFixed(2)})`;
+        ctx.lineWidth=1.5; ctx.stroke();
+      }
+    },
+
+    drawStroke(ctx, x1, y1, x2, y2) {
+      ctx.save(); ctx.lineCap='round'; ctx.lineJoin='round';
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+      ctx.strokeStyle='rgba(255,255,255,0.28)'; ctx.lineWidth=18; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+      ctx.strokeStyle='rgba(200,245,255,0.85)'; ctx.lineWidth=8; ctx.stroke();
+      ctx.restore();
+    },
+
+    rewardAnimation(ctx, snap, W, H, onDone) {
+      const DUR=2200, t0=performance.now();
+      (function frame(now) {
+        const raw=Math.min((now-t0)/DUR,1), ease=1-Math.pow(1-raw,2.8), elap=now-t0;
+        const wy=-50+ease*(H+120);
+        ctx.putImageData(snap,0,0); ctx.save();
+        function wl() {
+          ctx.moveTo(0,wy);
+          for(let x=0;x<=W;x+=4)
+            ctx.lineTo(x, wy+Math.sin(x*0.040+elap*0.0060)*12+Math.sin(x*0.085+elap*0.0100)*5);
+        }
+        ctx.beginPath(); wl(); ctx.lineTo(W,-10); ctx.lineTo(0,-10); ctx.closePath();
+        ctx.fillStyle='rgba(30,155,200,0.68)'; ctx.fill();
+        ctx.beginPath(); wl(); ctx.lineTo(W,-10); ctx.lineTo(0,-10); ctx.closePath();
+        const sh=ctx.createLinearGradient(0,0,W,0);
+        sh.addColorStop(0,'rgba(200,240,255,0.18)'); sh.addColorStop(1,'rgba(0,0,0,0)');
+        ctx.fillStyle=sh; ctx.fill();
+        ctx.beginPath(); wl();
+        ctx.strokeStyle='rgba(240,252,255,0.90)'; ctx.lineWidth=6;
+        ctx.lineCap='round'; ctx.stroke();
+        ctx.restore();
+        raw<1 ? requestAnimationFrame(frame) : onDone();
+      })(performance.now());
+    },
+  },
+
+  /* ─── ⚽ Soccer Field ──────────────────────────────────────── */
+  soccer: {
+    rewardLabel:       '⚽ שלח כדור',
+    rewardBtnGradient: 'linear-gradient(135deg,#1A6E1C,#2CA030 60%,#44B844)',
+    dottedColor:       'rgba(255,240,120,0.52)',
+    msgClear:          'ננסה שוב ברוגע',
+
+    // Soccer world rotates randomly through 6 joyful reward messages
+    msgRewardFn() {
+      const msgs = [
+        'איזה יופי, הכדור בא לחגוג איתך',
+        'מצוין, הכדור מפנה מקום למשימה הבאה',
+        'כל הכבוד, ממשיכים לשחק ולכתוב',
+        'איזה קו יפה על הדשא',
+        'הכדור קפץ ושמח בציור שלך',
+        'ממשיכים בכיף',
+      ];
+      return msgs[Math.floor(Math.random() * msgs.length)];
+    },
+
+    paintBackground(ctx, W, H) {
+      // Alternating mowing stripes
+      const STRIPES  = 8;
+      const stripeW  = W / STRIPES;
+      const darkGrn  = '#1E7218';
+      const lightGrn = '#257220';
+      for (let i = 0; i < STRIPES; i++) {
+        ctx.fillStyle = i % 2 === 0 ? darkGrn : lightGrn;
+        ctx.fillRect(i * stripeW, 0, stripeW, H);
+      }
+
+      // Field geometry proportions
+      const mg  = Math.min(W, H) * 0.046;  // margin from canvas edge
+      const fw  = W - 2 * mg;               // field width
+      const fh  = H - 2 * mg;               // field height
+      const fl  = mg;                         // field left x
+      const ft  = mg;                         // field top y
+      const lw  = Math.max(1.5, W * 0.003);  // line width
+      const dot = Math.max(2.5, W * 0.004);  // spot radius
+
+      ctx.strokeStyle = 'rgba(255,255,255,0.88)';
+      ctx.lineWidth   = lw;
+      ctx.lineJoin    = 'round';
+
+      // Outer boundary
+      ctx.strokeRect(fl, ft, fw, fh);
+
+      // Centre line (splits field left / right)
+      ctx.beginPath(); ctx.moveTo(W/2, ft); ctx.lineTo(W/2, ft+fh); ctx.stroke();
+
+      // Centre circle
+      const cr = Math.min(fw, fh) * 0.13;
+      ctx.beginPath(); ctx.arc(W/2, H/2, cr, 0, Math.PI*2); ctx.stroke();
+
+      // Centre spot
+      ctx.beginPath(); ctx.arc(W/2, H/2, dot, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(255,255,255,0.88)'; ctx.fill();
+
+      // Penalty areas
+      const paW = fw * 0.15, paH = fh * 0.55;
+      const paY = ft + (fh - paH) / 2;
+      ctx.strokeRect(fl,         paY, paW, paH);
+      ctx.strokeRect(fl+fw-paW,  paY, paW, paH);
+
+      // Goal areas (6-yard box)
+      const gaW = fw * 0.06, gaH = fh * 0.28;
+      const gaY = ft + (fh - gaH) / 2;
+      ctx.strokeRect(fl,         gaY, gaW, gaH);
+      ctx.strokeRect(fl+fw-gaW,  gaY, gaW, gaH);
+
+      // Penalty spots
+      const psX = fw * 0.105;
+      ctx.fillStyle = 'rgba(255,255,255,0.88)';
+      [fl + psX, fl + fw - psX].forEach(px => {
+        ctx.beginPath(); ctx.arc(px, H/2, dot, 0, Math.PI*2); ctx.fill();
+      });
+
+      // Corner arcs
+      const cAR = Math.min(fw, fh) * 0.042;
+      [[fl,    ft,    0,           Math.PI/2  ],
+       [fl+fw, ft,    Math.PI/2,   Math.PI    ],
+       [fl+fw, ft+fh, Math.PI,     1.5*Math.PI],
+       [fl,    ft+fh, 1.5*Math.PI, 2*Math.PI  ]].forEach(([cx,cy,sa,ea]) => {
+        ctx.beginPath(); ctx.arc(cx, cy, cAR, sa, ea); ctx.stroke();
+      });
+
+      // Goals — extend slightly beyond boundary on left and right
+      const gd  = W * 0.032;   // goal depth (into/out of field)
+      const gh  = fh * 0.22;   // goal height
+      const gY  = H/2 - gh/2;
+      const gYb = gY + gh;
+      ctx.lineWidth = Math.max(2, W * 0.004);
+
+      // Subtle net fill
+      ctx.fillStyle = 'rgba(255,255,255,0.07)';
+      ctx.fillRect(fl - gd, gY,    gd, gh);
+      ctx.fillRect(fl + fw,  gY,    gd, gh);
+
+      // Goal posts (U-shaped, open toward field)
+      ctx.strokeStyle = 'rgba(255,255,255,0.94)';
+      [fl, fl + fw].forEach((gx, side) => {
+        const sign = side === 0 ? -1 : 1;
+        ctx.beginPath();
+        ctx.moveTo(gx, gY);
+        ctx.lineTo(gx + sign * gd, gY);
+        ctx.lineTo(gx + sign * gd, gYb);
+        ctx.lineTo(gx, gYb);
+        ctx.stroke();
+      });
+
+      // Net grid lines
+      ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+      ctx.lineWidth   = 0.8;
+      const cols = 3, rows = 3;
+      for (let i = 1; i <= cols; i++) {
+        const xs = [fl - gd + (gd / (cols+1)) * i, fl + fw + (gd / (cols+1)) * i];
+        xs.forEach(nx => {
+          ctx.beginPath(); ctx.moveTo(nx, gY); ctx.lineTo(nx, gYb); ctx.stroke();
+        });
+      }
+      for (let i = 1; i <= rows; i++) {
+        const ny = gY + (gh / (rows+1)) * i;
+        [[fl-gd, fl], [fl+fw, fl+fw+gd]].forEach(([x1,x2]) => {
+          ctx.beginPath(); ctx.moveTo(x1, ny); ctx.lineTo(x2, ny); ctx.stroke();
+        });
+      }
+    },
+
+    drawStroke(ctx, x1, y1, x2, y2) {
+      // White chalk mark on grass
+      ctx.save(); ctx.lineCap='round'; ctx.lineJoin='round';
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+      ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=20; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+      ctx.strokeStyle='rgba(248,255,248,0.65)'; ctx.lineWidth=11; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+      ctx.strokeStyle='rgba(255,255,255,0.92)'; ctx.lineWidth=5; ctx.stroke();
+      ctx.restore();
+    },
+
+    rewardAnimation(ctx, snap, W, H, onDone) {
+      /* A soccer ball bounces from left to right across the field.
+         As it travels, the area it has already passed is revealed
+         as clean (restored from baseSnap), while the area ahead
+         still shows the child's drawing.
+         putImageData(data, dx, dy, dirtyX, dirtyY, dW, dH) copies
+         only the dW×dH dirty rectangle from data — perfect here. */
+
+      const BALL_R   = Math.min(W, H) * 0.065;
+      const GRASS_Y  = H * 0.51;     // vertical baseline of the bounce
+      const DUR      = 2600;
+      const NUM_BNCE = 4;
+      const t0 = performance.now();
+
+      (function frame(now) {
+        const raw = Math.min((now - t0) / DUR, 1);
+        // Linear horizontal travel (physics handles the easing feel via bounce arcs)
+        const ballX = -BALL_R + raw * (W + BALL_R * 2);
+
+        // Parabolic bouncing height, decreasing as ball travels
+        const phase = (raw * NUM_BNCE) % 1;
+        const amp   = H * 0.28 * Math.pow(Math.max(0, 1 - raw * 0.78), 0.65);
+        const ballY = GRASS_Y - amp * Math.sin(Math.PI * phase);
+
+        // Rotation proportional to distance (clockwise roll)
+        const rot = raw * Math.PI * 16;
+
+        // 1. Restore drawing (full canvas)
+        ctx.putImageData(snap, 0, 0);
+
+        // 2. Restore clean field for area to the LEFT of the ball.
+        //    putImageData dirty-rect copies only the columns 0…cleanW.
+        const cleanW = Math.max(0, Math.floor(ballX));
+        if (cleanW > 0 && baseSnap) {
+          ctx.putImageData(baseSnap, 0, 0, 0, 0, cleanW, H);
+        }
+
+        // 3. Shadow on the grass (grows when ball is in the air)
+        if (ballX > -BALL_R && ballX < W + BALL_R) {
+          const lift    = Math.max(0, GRASS_Y - ballY);
+          const maxLift = H * 0.28;
+          const frac    = lift / maxLift;
+          ctx.save();
+          ctx.globalAlpha = Math.max(0.05, 0.32 - frac * 0.24);
+          ctx.fillStyle   = '#0D3C0D';
+          ctx.beginPath();
+          ctx.ellipse(ballX, GRASS_Y + 3,
+            BALL_R * (0.85 + frac * 0.25),
+            BALL_R * 0.22, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+          // 4. Draw the ball
+          drawSoccerBall(ballX, ballY, BALL_R, rot);
+        }
+
+        raw < 1 ? requestAnimationFrame(frame) : onDone();
+      })(performance.now());
+    },
+  },
+
+  /* ─── 🦕 Jungle ───────────────────────────────────────────── */
+  jungle: {
+    rewardLabel:       '🦕 הדינוזאור מנקה',
+    rewardBtnGradient: 'linear-gradient(135deg,#1F6B1A,#3FA13A 60%,#8ED66A)',
+    dottedColor:       'rgba(40,110,40,0.40)',
+    msgReward:         'הדינוזאור הידידותי בא לנקות בעדינות',
+    msgClear:          'ננסה שוב ברוגע',
+
+    paintBackground(ctx, W, H) {
+      paintImageBackground(ctx, W, H, '#DCEFD2', ASSETS.jungleBg, 0.24);
+    },
+
+    drawStroke(ctx, x1, y1, x2, y2) {
+      ctx.save(); ctx.lineCap='round'; ctx.lineJoin='round';
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+      ctx.strokeStyle='rgba(150,210,130,0.45)'; ctx.lineWidth=17; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+      ctx.strokeStyle='#1F5C1A'; ctx.lineWidth=7; ctx.stroke();
+      ctx.restore();
+    },
+
+    rewardAnimation(ctx, snap, W, H, onDone) {
+      slideCharacterReveal(ctx, snap, W, H, ASSETS.dino, onDone, {
+        duration: 3000, size: 0.34, yFrac: 0.62, bob: H * 0.06,
+      });
+    },
+  },
+
+  /* ─── 🦄 Rainbow ──────────────────────────────────────────── */
+  rainbow: {
+    rewardLabel:       '🦄 קסם של חד-קרן',
+    rewardBtnGradient: 'linear-gradient(135deg,#9C3FB0,#C067D9 60%,#FFB0E8)',
+    dottedColor:       'rgba(150,80,180,0.40)',
+    msgReward:         'החד-קרן מפזרת אבק קסמים',
+    msgClear:          'ננסה שוב ברוגע',
+
+    paintBackground(ctx, W, H) {
+      const g = ctx.createLinearGradient(0, 0, 0, H);
+      g.addColorStop(0, '#EAF6FF');
+      g.addColorStop(1, '#FDF1FA');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      drawCoverImage(ctx, W, H, ASSETS.rainbowBg, 0.30);
+    },
+
+    drawStroke(ctx, x1, y1, x2, y2) {
+      ctx.save(); ctx.lineCap='round'; ctx.lineJoin='round';
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+      ctx.strokeStyle='rgba(255,210,255,0.50)'; ctx.lineWidth=17; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+      ctx.strokeStyle='#7A3FA0'; ctx.lineWidth=7; ctx.stroke();
+      ctx.restore();
+    },
+
+    rewardAnimation(ctx, snap, W, H, onDone) {
+      slideCharacterReveal(ctx, snap, W, H, ASSETS.unicorn, onDone, {
+        duration: 3000, size: 0.32, yFrac: 0.55, bob: H * 0.08,
+        trail: ['#FFD1F0','#FFFFFF','#D6B3FF','#B3E5FF','#FFF2B3'],
+      });
+    },
+  },
+
+  /* ─── 🍬 Candy World ─────────────────────────────────────────── */
+  candy: {
+    rewardLabel:       '🍬 הממתק מנקה',
+    rewardBtnGradient: 'linear-gradient(135deg,#C2185B,#E0539B 60%,#FFA8CC)',
+    dottedColor:       'rgba(200,40,100,0.40)',
+    msgReward:         'הממתק המתוק מנקה הכל',
+    msgClear:          'ננסה שוב ברוגע',
+
+    paintBackground(ctx, W, H) {
+      paintImageBackground(ctx, W, H, '#FDEFF7', ASSETS.candyBg, 0.26);
+    },
+
+    drawStroke(ctx, x1, y1, x2, y2) {
+      ctx.save(); ctx.lineCap='round'; ctx.lineJoin='round';
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+      ctx.strokeStyle='rgba(255,170,205,0.50)'; ctx.lineWidth=17; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+      ctx.strokeStyle='#C2185B'; ctx.lineWidth=7; ctx.stroke();
+      ctx.restore();
+    },
+
+    rewardAnimation(ctx, snap, W, H, onDone) {
+      slideCharacterReveal(ctx, snap, W, H, ASSETS.candyChar, onDone, {
+        duration: 2800, size: 0.26, yFrac: 0.58, bob: H * 0.05,
+      });
+    },
+  },
+
+  /* ─── 🚜 Construction Site ───────────────────────────────────── */
+  construction: {
+    rewardLabel:       '🚜 מחליקים את השטח',
+    rewardBtnGradient: 'linear-gradient(135deg,#B8860B,#E0A825 60%,#F5CC5C)',
+    dottedColor:       'rgba(120,90,40,0.42)',
+    msgReward:         'הטרקטור מחליק הכל בעדינות',
+    msgClear:          'ננסה שוב ברוגע',
+
+    paintBackground(ctx, W, H) {
+      paintImageBackground(ctx, W, H, '#F5EFE0', ASSETS.constructionBg, 0.24);
+    },
+
+    drawStroke(ctx, x1, y1, x2, y2) {
+      ctx.save(); ctx.lineCap='round'; ctx.lineJoin='round';
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+      ctx.strokeStyle='rgba(255,205,120,0.45)'; ctx.lineWidth=18; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+      ctx.strokeStyle='#5A4632'; ctx.lineWidth=7; ctx.stroke();
+      ctx.restore();
+    },
+
+    rewardAnimation(ctx, snap, W, H, onDone) {
+      slideCharacterReveal(ctx, snap, W, H, ASSETS.bulldozer, onDone, {
+        duration: 3400, size: 0.30, yFrac: 0.64, bob: 0,
+      });
+    },
+  },
+
+  /* ─── 🏎️ Racing ──────────────────────────────────────────────── */
+  racing: {
+    rewardLabel:       '🏎️ המכונית מנקה',
+    rewardBtnGradient: 'linear-gradient(135deg,#1857A8,#3E8AD6 60%,#9CD0FF)',
+    dottedColor:       'rgba(60,70,90,0.45)',
+    msgReward:         'המכונית עוברת ומנקה את המסלול',
+    msgClear:          'ננסה שוב ברוגע',
+
+    paintBackground(ctx, W, H) {
+      paintImageBackground(ctx, W, H, '#E8ECEF', ASSETS.racingBg, 0.32);
+    },
+
+    drawStroke(ctx, x1, y1, x2, y2) {
+      ctx.save(); ctx.lineCap='round'; ctx.lineJoin='round';
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+      ctx.strokeStyle='rgba(255,255,255,0.55)'; ctx.lineWidth=18; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+      ctx.strokeStyle='#33414F'; ctx.lineWidth=7; ctx.stroke();
+      ctx.restore();
+    },
+
+    rewardAnimation(ctx, snap, W, H, onDone) {
+      slideCharacterReveal(ctx, snap, W, H, ASSETS.raceCar, onDone, {
+        duration: 2400, size: 0.26, yFrac: 0.60, bob: H * 0.02,
+      });
+    },
+  },
+
+  /* ─── ❄️ Snow World ──────────────────────────────────────────── */
+  snow: {
+    rewardLabel:       '❄️ השלג מכסה הכל',
+    rewardBtnGradient: 'linear-gradient(135deg,#1565C0,#4FA8E0 60%,#D6F0FF)',
+    dottedColor:       'rgba(20,90,180,0.40)',
+    msgReward:         'השלג יורד בעדינות ומכסה הכל',
+    msgClear:          'ננסה שוב ברוגע',
+
+    paintBackground(ctx, W, H) {
+      paintImageBackground(ctx, W, H, '#F0F6FF', ASSETS.snowBg, 0.30);
+    },
+
+    drawStroke(ctx, x1, y1, x2, y2) {
+      ctx.save(); ctx.lineCap='round'; ctx.lineJoin='round';
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+      ctx.strokeStyle='rgba(255,255,255,0.60)'; ctx.lineWidth=18; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+      ctx.strokeStyle='#1565C0'; ctx.lineWidth=7; ctx.stroke();
+      ctx.restore();
+    },
+
+    // Procedural — gentle snow falls and accumulates until the surface
+    // is fully covered, then settles back to a clean base.
+    rewardAnimation(ctx, snap, W, H, onDone) {
+      const DUR = 3000;
+      const flakes = Array.from({length: 70}, () => ({
+        x: Math.random() * W, y: -Math.random() * H * 0.3,
+        r: 1.5 + Math.random() * 2.5,
+        vy: 0.5 + Math.random() * 1.0,
+        vx: (Math.random() - 0.5) * 0.3,
+      }));
+      const t0 = performance.now();
+      (function frame(now) {
+        const raw = Math.min((now - t0) / DUR, 1);
+        ctx.putImageData(snap, 0, 0);
+        ctx.save();
+        ctx.globalAlpha = raw;
+        ctx.fillStyle = '#F4FAFF';
+        ctx.fillRect(0, 0, W, H);
+        ctx.restore();
+        for (const f of flakes) {
+          f.x += f.vx; f.y += f.vy * (1 + raw);
+          if (f.y > H) { f.y = -4; f.x = Math.random() * W; }
+          ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(255,255,255,0.95)'; ctx.fill();
+        }
+        raw < 1 ? requestAnimationFrame(frame) : onDone();
+      })(performance.now());
+    },
+  },
+};
+
+/* ============================================================
+   STATE
+   ============================================================ */
+
+let worldId      = 'sand';
+let practiceType = 'letters';
+let ITEMS        = HEBREW_LETTERS;
+let itemIdx      = 0;
+let itemVisible  = false;
+let isDrawing  = false;
+let lastX = 0, lastY = 0;
+let isAnimating = false;
+let baseSnap    = null;
+let msgTimer    = null;
+
+const W = () => WORLDS[worldId];   // active world shorthand
+
+/* ============================================================
+   SIZING
+   ============================================================ */
+
+function resize() {
+  const maxW = Math.min(window.innerWidth  - 28, 560);
+  const maxH = Math.min(window.innerHeight * 0.54, 460);
+  canvas.width  = Math.round(maxW);
+  canvas.height = Math.round(maxH);
+  buildBase();
+}
+
+/* ============================================================
+   BASE LAYER
+   ============================================================ */
+
+function buildBase() {
+  const cW = canvas.width, cH = canvas.height;
+  if (cW === 0 || cH === 0) return;
+  W().paintBackground(ctx, cW, cH);
+  if (itemVisible) paintGuide(cW, cH);
+  baseSnap = ctx.getImageData(0, 0, cW, cH);
+}
+
+function restoreBase() {
+  baseSnap ? ctx.putImageData(baseSnap, 0, 0) : buildBase();
+}
+
+function paintGuide(cW, cH) {
+  const item = ITEMS[itemIdx];
+  const size = Math.floor(Math.min(cW * 0.74, cH * 0.80));
+  ctx.save();
+  ctx.font         = `bold ${size}px "Arial Hebrew","David",Arial,sans-serif`;
+  ctx.textAlign    = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.strokeStyle = W().dottedColor;
+  ctx.lineWidth   = 18;
+  ctx.setLineDash([5, 15]);
+  ctx.strokeText(item, cW / 2, cH / 2);
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+
+/* ============================================================
+   DRAWING
+   ============================================================ */
+
+function coords(e) {
+  const rect   = canvas.getBoundingClientRect();
+  const scaleX = canvas.width  / rect.width;
+  const scaleY = canvas.height / rect.height;
+  return {
+    x: (e.clientX - rect.left) * scaleX,
+    y: (e.clientY - rect.top)  * scaleY,
+  };
+}
+
+function pointerDown(e) {
+  if (isAnimating) return;
+  e.preventDefault();
+  canvas.setPointerCapture(e.pointerId);
+  isDrawing = true;
+  const p = coords(e);
+  lastX = p.x; lastY = p.y;
+  W().drawStroke(ctx, p.x, p.y, p.x + 0.1, p.y + 0.1);
+}
+function pointerMove(e) {
+  if (!isDrawing || isAnimating) return;
+  e.preventDefault();
+  const p = coords(e);
+  W().drawStroke(ctx, lastX, lastY, p.x, p.y);
+  lastX = p.x; lastY = p.y;
+}
+function pointerUp(e) {
+  isDrawing = false;
+  if (e && e.pointerId !== undefined && canvas.hasPointerCapture(e.pointerId)) {
+    canvas.releasePointerCapture(e.pointerId);
+  }
+}
+
+/* ============================================================
+   REWARD  —  therapist-triggered animated clear
+   ============================================================ */
+
+function triggerReward() {
+  if (isAnimating) return;
+  isAnimating = true;
+  isDrawing   = false;
+  setButtons(false);
+
+  // Worlds may supply msgRewardFn() for random messages; fall back to msgReward
+  const msg = typeof W().msgRewardFn === 'function' ? W().msgRewardFn() : W().msgReward;
+  showMsg(msg);
+
+  const snap = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  W().rewardAnimation(ctx, snap, canvas.width, canvas.height, () => {
+    isAnimating = false;
+    buildBase();
+    setButtons(true);
+  });
+}
+
+/* ============================================================
+   INSTANT CLEAR / NEXT LETTER
+   ============================================================ */
+
+function clearDrawing() {
+  if (isAnimating) return;
+  restoreBase();
+  showMsg(W().msgClear);
+}
+
+function nextItem() {
+  if (isAnimating) return;
+  itemIdx = (itemIdx + 1) % ITEMS.length;
+  buildBase();
+  updateIndicator();
+  showMsg('איזה יופי!');
+}
+
+function toggleShowItem() {
+  if (isAnimating) return;
+  itemVisible = !itemVisible;
+  document.getElementById('showBtn').textContent = itemVisible ? '🙈 הסתר' : '👁️ הצג';
+  buildBase();
+  updateIndicator();
+}
+
+/* ============================================================
+   WORLD / TYPE SWITCHING
+   ============================================================ */
+
+function switchWorld(newId) {
+  if (isAnimating) return;
+  worldId = newId;
+  document.body.className = `world-${worldId}`;
+  const rb = document.getElementById('rewardBtn');
+  rb.textContent      = W().rewardLabel;
+  rb.style.background = W().rewardBtnGradient;
+  document.querySelectorAll('.world-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.world === worldId));
+  buildBase();
+}
+
+function switchType(newType) {
+  practiceType = newType;
+  document.querySelectorAll('.type-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.type === newType));
+}
+
+/* ============================================================
+   START / PRACTICE SCREEN FLOW
+   ============================================================ */
+
+function startPractice() {
+  ITEMS = getItems(practiceType);
+  itemIdx = 0;
+  itemVisible = false;
+  document.getElementById('showBtn').textContent = '👁️ הצג';
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('practiceScreen').classList.remove('hidden');
+  resize();           // sizes the canvas now that it's visible, then buildBase()
+  updateIndicator();
+}
+
+function backToStart() {
+  if (isAnimating) return;
+  document.getElementById('practiceScreen').classList.add('hidden');
+  document.getElementById('startScreen').classList.remove('hidden');
+}
+
+/* ============================================================
+   UI HELPERS
+   ============================================================ */
+
+function setButtons(enabled) {
+  ['showBtn','rewardBtn','clearBtn','nextBtn'].forEach(id => {
+    document.getElementById(id).disabled = !enabled;
+  });
+}
+
+function updateIndicator() {
+  const total = ITEMS.length;
+  const n     = itemIdx + 1;
+  const el    = document.getElementById('letterIndicator');
+  if (itemVisible) {
+    const label = HEBREW_LETTERS.includes(ITEMS[itemIdx]) ? 'אות' : 'מספר';
+    el.textContent = `${label} ${ITEMS[itemIdx]}  ·  ${n} מתוך ${total}`;
+  } else {
+    el.textContent = `פריט ${n} מתוך ${total}`;
+  }
+}
+
+function showMsg(text) {
+  const el = document.getElementById('message');
+  clearTimeout(msgTimer);
+  el.classList.remove('show');
+  requestAnimationFrame(() => {
+    el.textContent = text;
+    el.classList.add('show');
+    msgTimer = setTimeout(() => el.classList.remove('show'), 3200);
+  });
+}
+
+/* ============================================================
+   EVENT BINDING
+   ============================================================ */
+
+canvas.addEventListener('pointerdown',   pointerDown,  { passive: false });
+canvas.addEventListener('pointermove',   pointerMove,  { passive: false });
+canvas.addEventListener('pointerup',     pointerUp);
+canvas.addEventListener('pointercancel', pointerUp);
+canvas.addEventListener('pointerleave',  pointerUp);
+
+document.getElementById('showBtn').addEventListener('click',   toggleShowItem);
+document.getElementById('rewardBtn').addEventListener('click', triggerReward);
+document.getElementById('clearBtn').addEventListener('click',  clearDrawing);
+document.getElementById('nextBtn').addEventListener('click',   nextItem);
+document.getElementById('startBtn').addEventListener('click',  startPractice);
+document.getElementById('backBtn').addEventListener('click',   backToStart);
+
+document.querySelectorAll('.world-btn').forEach(b =>
+  b.addEventListener('click', () => switchWorld(b.dataset.world)));
+document.querySelectorAll('.type-btn').forEach(b =>
+  b.addEventListener('click', () => switchType(b.dataset.type)));
+
+window.addEventListener('resize', resize);
+
+/* ============================================================
+   INIT  —  sand world preview on the start screen
+   ============================================================ */
+
+switchWorld('sand');
+</script>
+</body>
+</html>
