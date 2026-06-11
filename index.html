@@ -514,6 +514,10 @@ const WORLDS = {
     guideShadowColor:  'rgba(255,250,235,0.88)',
     guideLineWidth:    18,
     guideOpacity:      0.92,
+    childStrokeColor:  '#1565C0',
+    childOutlineColor: '#0B3D78',
+    childShadowColor:  'rgba(255,255,255,0.50)',
+    childLineWidth:    9,
     msgReward:         'הים בא לחגוג את האות שלך',
     msgClear:          'ננסה שוב ברוגע',
 
@@ -539,12 +543,7 @@ const WORLDS = {
     },
 
     drawStroke(ctx, x1, y1, x2, y2) {
-      ctx.save(); ctx.lineCap='round'; ctx.lineJoin='round';
-      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
-      ctx.strokeStyle='rgba(210,158,75,0.44)'; ctx.lineWidth=17; ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
-      ctx.strokeStyle='#5A2C0C'; ctx.lineWidth=7; ctx.stroke();
-      ctx.restore();
+      drawChildStroke(ctx, x1, y1, x2, y2);
     },
 
     rewardAnimation(ctx, snap, W, H, onDone, gen) {
@@ -582,6 +581,10 @@ const WORLDS = {
     guideShadowColor:  'rgba(255,255,255,0.92)',
     guideLineWidth:    20,
     guideOpacity:      0.90,
+    childStrokeColor:  '#E64A19',
+    childOutlineColor: '#7A1E0A',
+    childShadowColor:  'rgba(255,210,150,0.45)',
+    childLineWidth:    9,
     msgReward:         'השלג יורד בעדינות ומכסה הכל',
     msgClear:          'ננסה שוב ברוגע',
 
@@ -590,12 +593,7 @@ const WORLDS = {
     },
 
     drawStroke(ctx, x1, y1, x2, y2) {
-      ctx.save(); ctx.lineCap='round'; ctx.lineJoin='round';
-      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
-      ctx.strokeStyle='rgba(255,255,255,0.60)'; ctx.lineWidth=18; ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
-      ctx.strokeStyle='#1565C0'; ctx.lineWidth=7; ctx.stroke();
-      ctx.restore();
+      drawChildStroke(ctx, x1, y1, x2, y2);
     },
 
     rewardAnimation(ctx, snap, W, H, onDone, gen) {
@@ -635,6 +633,10 @@ const WORLDS = {
     guideShadowColor:  'rgba(15,50,15,0.55)',
     guideLineWidth:    20,
     guideOpacity:      0.92,
+    childStrokeColor:  '#FF3D81',
+    childOutlineColor: '#123B12',
+    childShadowColor:  'rgba(255,255,255,0.35)',
+    childLineWidth:    9,
     msgClear:          'ננסה שוב ברוגע',
 
     msgRewardFn() {
@@ -744,14 +746,7 @@ const WORLDS = {
     },
 
     drawStroke(ctx, x1, y1, x2, y2) {
-      ctx.save(); ctx.lineCap='round'; ctx.lineJoin='round';
-      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
-      ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=20; ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
-      ctx.strokeStyle='rgba(248,255,248,0.65)'; ctx.lineWidth=11; ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
-      ctx.strokeStyle='rgba(255,255,255,0.92)'; ctx.lineWidth=5; ctx.stroke();
-      ctx.restore();
+      drawChildStroke(ctx, x1, y1, x2, y2);
     },
 
     rewardAnimation(ctx, snap, W, H, onDone, gen) {
@@ -809,6 +804,10 @@ const WORLDS = {
     guideShadowColor:  'rgba(255,255,255,0.88)',
     guideLineWidth:    20,
     guideOpacity:      0.90,
+    childStrokeColor:  '#D6336C',
+    childOutlineColor: '#5C0030',
+    childShadowColor:  'rgba(255,255,255,0.55)',
+    childLineWidth:    9,
     msgReward:         'הענן עובר בעדינות ומנקה',
     msgClear:          'ננסה שוב ברוגע',
 
@@ -845,12 +844,7 @@ const WORLDS = {
     },
 
     drawStroke(ctx, x1, y1, x2, y2) {
-      ctx.save(); ctx.lineCap='round'; ctx.lineJoin='round';
-      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
-      ctx.strokeStyle='rgba(180,180,255,0.30)'; ctx.lineWidth=17; ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
-      ctx.strokeStyle='#3A3A5C'; ctx.lineWidth=7; ctx.stroke();
-      ctx.restore();
+      drawChildStroke(ctx, x1, y1, x2, y2);
     },
 
     rewardAnimation(ctx, snap, W, H, onDone, gen) {
@@ -879,6 +873,10 @@ const WORLDS = {
     guideShadowColor:  'rgba(255,255,255,0.85)',
     guideLineWidth:    20,
     guideOpacity:      0.90,
+    childStrokeColor:  '#FF8F00',
+    childOutlineColor: '#3E2110',
+    childShadowColor:  'rgba(255,255,255,0.40)',
+    childLineWidth:    9,
     msgReward:         'הדינוזאור עובר בעדינות ומנקה',
     msgClear:          'ננסה שוב ברוגע',
 
@@ -903,12 +901,7 @@ const WORLDS = {
     },
 
     drawStroke(ctx, x1, y1, x2, y2) {
-      ctx.save(); ctx.lineCap='round'; ctx.lineJoin='round';
-      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
-      ctx.strokeStyle='rgba(70,140,75,0.28)'; ctx.lineWidth=17; ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
-      ctx.strokeStyle='#2E5A30'; ctx.lineWidth=7; ctx.stroke();
-      ctx.restore();
+      drawChildStroke(ctx, x1, y1, x2, y2);
     },
 
     rewardAnimation(ctx, snap, W, H, onDone, gen) {
@@ -976,6 +969,22 @@ function buildBase() {
 
 function restoreBase() {
   baseSnap ? ctx.putImageData(baseSnap, 0, 0) : buildBase();
+}
+
+// Draws one segment of the child's own stroke as a solid, vivid line
+// with a dark outline and a soft outer glow, so it reads as the most
+// alive element on screen and stays clearly distinct from the guide.
+function drawChildStroke(ctx, x1, y1, x2, y2) {
+  const w = W();
+  ctx.save();
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+  ctx.strokeStyle = w.childShadowColor; ctx.lineWidth = w.childLineWidth + 14; ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+  ctx.strokeStyle = w.childOutlineColor; ctx.lineWidth = w.childLineWidth + 6; ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+  ctx.strokeStyle = w.childStrokeColor; ctx.lineWidth = w.childLineWidth; ctx.stroke();
+  ctx.restore();
 }
 
 // Draws the practice item's guide path/text using whatever stroke
