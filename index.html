@@ -53,6 +53,14 @@
       background: linear-gradient(to bottom,
         #DCEFD7 0%, #C8E6C0 45%, #AFDBA6 100%);
     }
+    body.world-fairyPhoto {
+      background: linear-gradient(to bottom,
+        #F3E5FF 0%, #FFE0F0 45%, #FFE9C6 100%);
+    }
+    body.world-junglePhoto {
+      background: linear-gradient(to bottom,
+        #1B3A1E 0%, #2E5A30 45%, #4A7A40 100%);
+    }
 
     /* ── High-contrast text panel (works on every background) ─── */
     .panel {
@@ -199,6 +207,12 @@
     body.world-jungle #canvasWrap {
       box-shadow: 0 0 0 4px #FFFFFF, 0 0 0 7px #6FBF73, 0 10px 24px rgba(40,100,40,0.20);
     }
+    body.world-fairyPhoto #canvasWrap {
+      box-shadow: 0 0 0 4px #FFFFFF, 0 0 0 7px #C9A0F5, 0 10px 24px rgba(150,100,200,0.22);
+    }
+    body.world-junglePhoto #canvasWrap {
+      box-shadow: 0 0 0 4px #FFFFFF, 0 0 0 7px #2E5A30, 0 10px 26px rgba(20,60,20,0.32);
+    }
 
     #mainCanvas {
       display: block;
@@ -264,6 +278,8 @@
       <button class="choice-btn world-btn"        data-world="soccer">⚽ כדורגל</button>
       <button class="choice-btn world-btn"        data-world="rainbow">🌈 קשת</button>
       <button class="choice-btn world-btn"        data-world="jungle">🦖 ג'ונגל</button>
+      <button class="choice-btn world-btn"        data-world="fairyPhoto">🧚 יער פיות</button>
+      <button class="choice-btn world-btn"        data-world="junglePhoto">🦖 ג'ונגל ריאליסטי</button>
     </div>
 
     <button id="startBtn">▶ התחלה</button>
@@ -483,7 +499,9 @@ function loadImg(src) {
   return img;
 }
 const ASSETS = {
-  snowBg: loadImg('assets/backgrounds/snow-bg.svg'),
+  snowBg:    loadImg('assets/backgrounds/snow-bg.svg'),
+  fairyBg:   loadImg('images/fi.png'),
+  jungleBg:  loadImg('images/ju.png'),
 };
 function drawCoverImage(ctx, W, H, img, alpha) {
   if (!img.complete || !img.naturalWidth) return;
@@ -898,6 +916,112 @@ const WORLDS = {
       [[W*0.04,H*0.42],[W*0.96,H*0.55],[W*0.5,H*0.03],[W*0.5,H*0.97]].forEach(([lx,ly]) => {
         ctx.beginPath(); ctx.ellipse(lx, ly, W * 0.05, H * 0.03, 0.4, 0, Math.PI * 2); ctx.fill();
       });
+    },
+
+    drawStroke(ctx, x1, y1, x2, y2) {
+      drawChildStroke(ctx, x1, y1, x2, y2);
+    },
+
+    rewardAnimation(ctx, snap, W, H, onDone, gen) {
+      const DUR    = 2600, t0 = performance.now();
+      const dinoR  = Math.min(W, H) * 0.16;
+      const groundY = H * 0.62;
+      (function frame(now) {
+        if (gen !== animGen) return;
+        const raw = Math.min((now - t0) / DUR, 1);
+        const cx  = -dinoR * 1.6 + raw * (W + dinoR * 3.2);
+        ctx.putImageData(snap, 0, 0);
+        const cleanW = Math.max(0, Math.floor(cx));
+        if (cleanW > 0 && baseSnap) {
+          ctx.putImageData(baseSnap, 0, 0, 0, 0, cleanW, H);
+        }
+        const bob = Math.sin(raw * Math.PI * 8) * dinoR * 0.05;
+        drawDino(ctx, cx, groundY + bob, dinoR, 1);
+        raw < 1 ? requestAnimationFrame(frame) : onDone();
+      })(performance.now());
+    },
+  },
+
+  /* ─── 🧚 Fairy forest (photo) ───────────────────────────────── */
+  fairyPhoto: {
+    rewardLabel:       '🧚 אבקת פיות',
+    rewardBtnGradient: 'linear-gradient(135deg,#B388FF,#FF8FCB 60%,#FFD66B)',
+    guideStrokeColor:  '#4A2545',
+    guideShadowColor:  'rgba(255,255,255,0.85)',
+    guideLineWidth:    18,
+    guideOpacity:      0.90,
+    childStrokeColor:  '#00BFA5',
+    childOutlineColor: '#004D40',
+    childShadowColor:  'rgba(255,255,255,0.55)',
+    childLineWidth:    9,
+    msgReward:         'אבקת הפיות עוברת בעדינות ומנקה',
+    msgClear:          'ננסה שוב ברוגע',
+
+    paintBackground(ctx, W, H) {
+      paintImageBackground(ctx, W, H, '#F3E5FF', ASSETS.fairyBg, 0.42);
+      ctx.save();
+      ctx.fillStyle = 'rgba(255,255,255,0.30)';
+      ctx.fillRect(0, 0, W, H);
+      ctx.restore();
+    },
+
+    drawStroke(ctx, x1, y1, x2, y2) {
+      drawChildStroke(ctx, x1, y1, x2, y2);
+    },
+
+    rewardAnimation(ctx, snap, W, H, onDone, gen) {
+      const DUR = 2400, t0 = performance.now();
+      const cloudR = Math.max(W, H) * 0.30;
+      const sparkles = Array.from({ length: 18 }, () => ({
+        dx:    (Math.random() - 0.5) * cloudR * 2.4,
+        dy:    (Math.random() - 0.5) * cloudR * 1.6,
+        r:     1.5 + Math.random() * 2.5,
+        phase: Math.random() * Math.PI * 2,
+      }));
+      (function frame(now) {
+        if (gen !== animGen) return;
+        const raw = Math.min((now - t0) / DUR, 1);
+        const cx  = -cloudR + raw * (W + cloudR * 2);
+        ctx.putImageData(snap, 0, 0);
+        const cleanW = Math.max(0, Math.floor(cx));
+        if (cleanW > 0 && baseSnap) {
+          ctx.putImageData(baseSnap, 0, 0, 0, 0, cleanW, H);
+        }
+        drawCloud(ctx, cx, H / 2, cloudR);
+        ctx.save();
+        sparkles.forEach(s => {
+          const tw = 0.5 + 0.5 * Math.sin(now * 0.006 + s.phase);
+          ctx.globalAlpha = 0.5 + 0.5 * tw;
+          ctx.fillStyle   = '#FFD66B';
+          ctx.beginPath(); ctx.arc(cx + s.dx, H / 2 + s.dy, s.r, 0, Math.PI * 2); ctx.fill();
+        });
+        ctx.restore();
+        raw < 1 ? requestAnimationFrame(frame) : onDone();
+      })(performance.now());
+    },
+  },
+
+  /* ─── 🦖 Jungle (realistic photo) ───────────────────────────── */
+  junglePhoto: {
+    rewardLabel:       '🦖 הדינוזאור מנקה',
+    rewardBtnGradient: 'linear-gradient(135deg,#4CAF50,#8BC34A 60%,#C5E1A5)',
+    guideStrokeColor:  '#2E4A1E',
+    guideShadowColor:  'rgba(255,255,255,0.85)',
+    guideLineWidth:    18,
+    guideOpacity:      0.90,
+    childStrokeColor:  '#FF1744',
+    childOutlineColor: '#1B3D14',
+    childShadowColor:  'rgba(255,255,255,0.45)',
+    childLineWidth:    9,
+    msgReward:         'הדינוזאור עובר בעדינות ומנקה',
+    msgClear:          'ננסה שוב ברוגע',
+
+    paintBackground(ctx, W, H) {
+      paintImageBackground(ctx, W, H, '#E3F0E3', ASSETS.jungleBg, 0.42);
+      ctx.save();
+      ctx.fillStyle = 'rgba(255,255,255,0.30)';
+      ctx.fillRect(0, 0, W, H);
+      ctx.restore();
     },
 
     drawStroke(ctx, x1, y1, x2, y2) {
