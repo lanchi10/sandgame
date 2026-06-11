@@ -65,6 +65,14 @@
       background: linear-gradient(to bottom,
         #BDE6FF 0%, #E8F6FF 45%, #FFF6E0 100%);
     }
+    body.world-fireRescue {
+      background: linear-gradient(to bottom,
+        #FFE0B2 0%, #FFF3E0 45%, #E3F2FD 100%);
+    }
+    body.world-unicornParty {
+      background: linear-gradient(to bottom,
+        #F8BBD0 0%, #E1BEE7 45%, #FFF9C4 100%);
+    }
 
     /* ── High-contrast text panel (works on every background) ─── */
     .panel {
@@ -220,6 +228,12 @@
     body.world-parkPhoto #canvasWrap {
       box-shadow: 0 0 0 4px #FFFFFF, 0 0 0 7px #4DABF7, 0 10px 24px rgba(80,160,220,0.22);
     }
+    body.world-fireRescue #canvasWrap {
+      box-shadow: 0 0 0 4px #FFFFFF, 0 0 0 7px #E53935, 0 10px 24px rgba(180,40,30,0.25);
+    }
+    body.world-unicornParty #canvasWrap {
+      box-shadow: 0 0 0 4px #FFFFFF, 0 0 0 7px #CE93D8, 0 10px 24px rgba(180,100,200,0.22);
+    }
 
     #mainCanvas {
       display: block;
@@ -288,6 +302,8 @@
       <button class="choice-btn world-btn"        data-world="fairyPhoto">🧚 יער פיות</button>
       <button class="choice-btn world-btn"        data-world="junglePhoto">🦖 ג'ונגל ריאליסטי</button>
       <button class="choice-btn world-btn"        data-world="parkPhoto">🎡 לונה פארק</button>
+      <button class="choice-btn world-btn"        data-world="fireRescue">🚒 מכבי אש</button>
+      <button class="choice-btn world-btn"        data-world="unicornParty">🦄 יוניקורן</button>
     </div>
 
     <button id="startBtn">▶ התחלה</button>
@@ -442,6 +458,70 @@ function drawBalloons(ctx, cx, cy, r) {
   ctx.restore();
 }
 
+// A small, friendly fire truck (rounded body + cab + ladder + wheels),
+// centred at (cx, cy) with overall "size" r — the calm "fire truck"
+// cleanup for the fire-rescue world.
+function drawFireTruck(ctx, cx, cy, r) {
+  ctx.save();
+  ctx.fillStyle = '#E53935';
+  pathRoundedRect(ctx, cx - r, cy - r * 0.45, r * 1.8, r * 0.85, r * 0.18);
+  ctx.fill();
+
+  ctx.fillStyle = '#EF5350';
+  pathRoundedRect(ctx, cx + r * 0.55, cy - r * 0.75, r * 0.55, r * 0.65, r * 0.12);
+  ctx.fill();
+
+  ctx.fillStyle = '#BBDEFB';
+  pathRoundedRect(ctx, cx + r * 0.66, cy - r * 0.62, r * 0.32, r * 0.30, r * 0.06);
+  ctx.fill();
+
+  ctx.strokeStyle = '#FFCDD2';
+  ctx.lineWidth   = Math.max(1, r * 0.05);
+  ctx.beginPath();
+  ctx.moveTo(cx - r * 0.9, cy - r * 0.5);
+  ctx.lineTo(cx + r * 0.4, cy - r * 0.5);
+  ctx.stroke();
+
+  [cx - r * 0.55, cx + r * 0.45].forEach(wx => {
+    ctx.fillStyle = '#212121';
+    ctx.beginPath(); ctx.arc(wx, cy + r * 0.42, r * 0.22, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#BDBDBD';
+    ctx.beginPath(); ctx.arc(wx, cy + r * 0.42, r * 0.09, 0, Math.PI * 2); ctx.fill();
+  });
+  ctx.restore();
+}
+
+// A small four-pointed sparkle ("+x" asterisk), centred at (cx, cy)
+// with "size" r and the given color — used as twinkling magic dust.
+function drawSparkleStar(ctx, cx, cy, r, color) {
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth   = Math.max(1, r * 0.22);
+  ctx.lineCap     = 'round';
+  ctx.beginPath();
+  ctx.moveTo(cx - r, cy);          ctx.lineTo(cx + r, cy);
+  ctx.moveTo(cx, cy - r);          ctx.lineTo(cx, cy + r);
+  ctx.moveTo(cx - r * 0.7, cy - r * 0.7); ctx.lineTo(cx + r * 0.7, cy + r * 0.7);
+  ctx.moveTo(cx - r * 0.7, cy + r * 0.7); ctx.lineTo(cx + r * 0.7, cy - r * 0.7);
+  ctx.stroke();
+  ctx.restore();
+}
+
+// A small magic wand (handle + star tip), centred at (cx, cy) with
+// overall "size" r — the calm "magic dust" cleanup for the unicorn world.
+function drawMagicWand(ctx, cx, cy, r) {
+  ctx.save();
+  ctx.strokeStyle = '#B388FF';
+  ctx.lineWidth   = Math.max(2, r * 0.10);
+  ctx.lineCap     = 'round';
+  ctx.beginPath();
+  ctx.moveTo(cx - r * 0.55, cy + r * 0.55);
+  ctx.lineTo(cx + r * 0.35, cy - r * 0.35);
+  ctx.stroke();
+  drawSparkleStar(ctx, cx + r * 0.4, cy - r * 0.4, r * 0.5, '#FFD54F');
+  ctx.restore();
+}
+
 /* ============================================================
    JUNGLE HELPERS  (friendly tree + dino)
    ============================================================ */
@@ -534,6 +614,8 @@ const ASSETS = {
   fairyBg:   loadImg('images/fi.png'),
   jungleBg:  loadImg('images/ju.png'),
   parkBg:    loadImg('images/lp.png'),
+  fireBg:    loadImg('images/ff.png'),
+  unicornBg: loadImg('images/yk.png'),
 };
 function drawCoverImage(ctx, W, H, img, alpha) {
   if (!img.complete || !img.naturalWidth) return;
@@ -577,6 +659,60 @@ function paintVividPhotoBackground(ctx, W, H, baseColor, img) {
   g.addColorStop(1, 'rgba(255,255,255,0)');
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, W, H);
+}
+
+// Path for a rounded rectangle, built from primitives already used
+// elsewhere (moveTo/lineTo/quadraticCurveTo) so it works in every
+// canvas context, including the Node smoke-test stub.
+function pathRoundedRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+// The central "writing pad" rectangle shared by photo backgrounds that
+// keep their artwork sharp around the edges and offer one clean light
+// area in the middle for the guide and the child's drawing.
+function getWritingPad(W, H) {
+  const w = W * 0.66, h = H * 0.62;
+  return { x: (W - w) / 2, y: (H - h) / 2, w, h };
+}
+
+// Sharp, vivid photo background (no wash, no blur, no desaturation)
+// with a clean rounded white "writing pad" card in the centre. The
+// guide and the child's stroke live on this card; the photo itself
+// stays crisp and decorative all around it.
+function paintPhotoWithWritingPad(ctx, W, H, baseColor, img) {
+  ctx.fillStyle = baseColor;
+  ctx.fillRect(0, 0, W, H);
+
+  if (img.complete && img.naturalWidth) {
+    const scale = Math.max(W / img.naturalWidth, H / img.naturalHeight);
+    const iw = img.naturalWidth * scale, ih = img.naturalHeight * scale;
+    ctx.save();
+    ctx.filter = 'saturate(1.10) contrast(1.05) brightness(1.02)';
+    ctx.drawImage(img, (W - iw) / 2, (H - ih) / 2, iw, ih);
+    ctx.restore();
+  }
+
+  const pad = getWritingPad(W, H);
+  const r   = Math.min(pad.w, pad.h) * 0.10;
+  ctx.save();
+  ctx.shadowColor   = 'rgba(0,0,0,0.18)';
+  ctx.shadowBlur    = 18;
+  ctx.shadowOffsetY = 6;
+  ctx.fillStyle     = 'rgba(255,255,255,0.95)';
+  pathRoundedRect(ctx, pad.x, pad.y, pad.w, pad.h, r);
+  ctx.fill();
+  ctx.restore();
 }
 
 /* ============================================================
@@ -1142,6 +1278,105 @@ const WORLDS = {
       })(performance.now());
     },
   },
+
+  /* ─── 🚒 Fire rescue (photo + writing pad) ──────────────────── */
+  fireRescue: {
+    rewardLabel:       '🚒 הכבאית מנקה',
+    rewardBtnGradient: 'linear-gradient(135deg,#FF7043,#FFCA28 60%,#42A5F5)',
+    guideStrokeColor:  '#E65100',
+    guideShadowColor:  'rgba(255,205,130,0.55)',
+    guideLineWidth:    15,
+    guideOpacity:      0.55,
+    childStrokeColor:  '#1565C0',
+    childOutlineColor: '#0A2A52',
+    childShadowColor:  'rgba(21,101,192,0.18)',
+    childLineWidth:    13,
+    msgReward:         'הכבאית עוברת בעדינות ומנקה',
+    msgClear:          'ננסה שוב ברוגע',
+    writingPad:        getWritingPad,
+
+    paintBackground(ctx, W, H) {
+      paintPhotoWithWritingPad(ctx, W, H, '#FFF3E0', ASSETS.fireBg);
+    },
+
+    drawStroke(ctx, x1, y1, x2, y2) {
+      drawChildStroke(ctx, x1, y1, x2, y2);
+    },
+
+    rewardAnimation(ctx, snap, W, H, onDone, gen) {
+      const DUR = 2400, t0 = performance.now();
+      const truckR = Math.min(W, H) * 0.18;
+      (function frame(now) {
+        if (gen !== animGen) return;
+        const raw = Math.min((now - t0) / DUR, 1);
+        const cx  = -truckR * 1.6 + raw * (W + truckR * 3.2);
+        ctx.putImageData(snap, 0, 0);
+        const cleanW = Math.max(0, Math.floor(cx));
+        if (cleanW > 0 && baseSnap) {
+          ctx.putImageData(baseSnap, 0, 0, 0, 0, cleanW, H);
+        }
+        const bob = Math.sin(raw * Math.PI * 6) * truckR * 0.05;
+        drawFireTruck(ctx, cx, H / 2 + bob, truckR);
+        raw < 1 ? requestAnimationFrame(frame) : onDone();
+      })(performance.now());
+    },
+  },
+
+  /* ─── 🦄 Unicorn party (photo + writing pad) ────────────────── */
+  unicornParty: {
+    rewardLabel:       '🦄 קסם יוניקורן',
+    rewardBtnGradient: 'linear-gradient(135deg,#F8BBD0,#CE93D8 60%,#FFD54F)',
+    guideStrokeColor:  '#7B1FA2',
+    guideShadowColor:  'rgba(225,190,255,0.60)',
+    guideLineWidth:    15,
+    guideOpacity:      0.55,
+    childStrokeColor:  '#AD1457',
+    childOutlineColor: '#4A0E2B',
+    childShadowColor:  'rgba(173,20,87,0.18)',
+    childLineWidth:    13,
+    msgReward:         'אבקת הקסם עוברת בעדינות ומנקה',
+    msgClear:          'ננסה שוב ברוגע',
+    writingPad:        getWritingPad,
+
+    paintBackground(ctx, W, H) {
+      paintPhotoWithWritingPad(ctx, W, H, '#FCE4EC', ASSETS.unicornBg);
+    },
+
+    drawStroke(ctx, x1, y1, x2, y2) {
+      drawChildStroke(ctx, x1, y1, x2, y2);
+    },
+
+    rewardAnimation(ctx, snap, W, H, onDone, gen) {
+      const DUR  = 2400, t0 = performance.now();
+      const wandR = Math.min(W, H) * 0.16;
+      const sparkles = Array.from({ length: 14 }, () => ({
+        dx:    (Math.random() - 0.5) * wandR * 3,
+        dy:    (Math.random() - 0.5) * wandR * 2,
+        r:     1.5 + Math.random() * 2.5,
+        color: ['#FF8FCB', '#B388FF', '#FFD66B', '#80DEEA', '#A5D6A7'][Math.floor(Math.random() * 5)],
+        phase: Math.random() * Math.PI * 2,
+      }));
+      (function frame(now) {
+        if (gen !== animGen) return;
+        const raw = Math.min((now - t0) / DUR, 1);
+        const cx  = -wandR * 1.4 + raw * (W + wandR * 2.8);
+        ctx.putImageData(snap, 0, 0);
+        const cleanW = Math.max(0, Math.floor(cx));
+        if (cleanW > 0 && baseSnap) {
+          ctx.putImageData(baseSnap, 0, 0, 0, 0, cleanW, H);
+        }
+        const bob = Math.sin(raw * Math.PI * 6) * wandR * 0.10;
+        sparkles.forEach(s => {
+          const tw = 0.5 + 0.5 * Math.sin(now * 0.006 + s.phase);
+          ctx.globalAlpha = 0.5 + 0.5 * tw;
+          drawSparkleStar(ctx, cx + s.dx, H / 2 + bob + s.dy, s.r * 1.6, s.color);
+        });
+        ctx.globalAlpha = 1;
+        drawMagicWand(ctx, cx, H / 2 + bob, wandR);
+        raw < 1 ? requestAnimationFrame(frame) : onDone();
+      })(performance.now());
+    },
+  },
 };
 
 /* ============================================================
@@ -1230,19 +1465,28 @@ function paintGuide(cW, cH) {
   ctx.lineCap  = 'round';
   ctx.lineJoin = 'round';
 
+  // Worlds with a dedicated "writing pad" draw the guide only inside
+  // that card, so it never overlaps the busy decorative photo.
+  let gW = cW, gH = cH;
+  if (w.writingPad) {
+    const pad = w.writingPad(cW, cH);
+    ctx.translate(pad.x, pad.y);
+    gW = pad.w; gH = pad.h;
+  }
+
   // Pass 1: solid halo so the guide stands out from the background texture
   ctx.globalAlpha = 1;
   ctx.strokeStyle = w.guideShadowColor;
   ctx.lineWidth   = w.guideLineWidth + 10;
   ctx.setLineDash([]);
-  drawGuideContent(cW, cH);
+  drawGuideContent(gW, gH);
 
   // Pass 2: dashed main guide stroke on top of the halo
   ctx.globalAlpha = w.guideOpacity;
   ctx.strokeStyle = w.guideStrokeColor;
   ctx.lineWidth   = w.guideLineWidth;
   ctx.setLineDash([5, 15]);
-  drawGuideContent(cW, cH);
+  drawGuideContent(gW, gH);
 
   ctx.setLineDash([]);
   ctx.globalAlpha = 1;
