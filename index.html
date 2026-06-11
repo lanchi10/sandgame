@@ -556,25 +556,25 @@ function drawVividCoverImage(ctx, W, H, img, alpha) {
   const iw = img.naturalWidth * scale, ih = img.naturalHeight * scale;
   ctx.save();
   ctx.globalAlpha = alpha;
-  ctx.filter = 'saturate(1.15) contrast(1.08) brightness(1.03)';
+  ctx.filter = 'saturate(1.18) contrast(1.10) brightness(1.02)';
   ctx.drawImage(img, (W - iw) / 2, (H - ih) / 2, iw, ih);
   ctx.restore();
 }
 
-// Photo background at near-full presence (colourful corners/edges),
+// Photo background at near-full presence (colourful, sharp corners/edges),
 // with a soft inverse-vignette that lightens just the centre writing
 // area so the guide and child stroke stay readable.
 function paintVividPhotoBackground(ctx, W, H, baseColor, img) {
   ctx.fillStyle = baseColor;
   ctx.fillRect(0, 0, W, H);
-  drawVividCoverImage(ctx, W, H, img, 0.85);
+  drawVividCoverImage(ctx, W, H, img, 0.92);
 
   const cx = W / 2, cy = H / 2;
   const innerR = Math.min(W, H) * 0.16;
   const outerR = Math.max(W, H) * 0.62;
   const g = ctx.createRadialGradient(cx, cy, innerR, cx, cy, outerR);
-  g.addColorStop(0, 'rgba(255,255,255,0.55)');
-  g.addColorStop(1, 'rgba(255,255,255,0.10)');
+  g.addColorStop(0, 'rgba(255,255,255,0.35)');
+  g.addColorStop(1, 'rgba(255,255,255,0)');
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, W, H);
 }
@@ -1011,10 +1011,10 @@ const WORLDS = {
     guideShadowColor:  'rgba(255,255,255,0.85)',
     guideLineWidth:    18,
     guideOpacity:      0.90,
-    childStrokeColor:  '#00BFA5',
-    childOutlineColor: '#004D40',
-    childShadowColor:  'rgba(255,255,255,0.65)',
-    childLineWidth:    11,
+    childStrokeColor:  '#00E5C7',
+    childOutlineColor: '#00251F',
+    childShadowColor:  'rgba(255,255,255,0.78)',
+    childLineWidth:    13,
     msgReward:         'אבקת הפיות עוברת בעדינות ומנקה',
     msgClear:          'ננסה שוב ברוגע',
 
@@ -1066,10 +1066,10 @@ const WORLDS = {
     guideShadowColor:  'rgba(255,255,255,0.85)',
     guideLineWidth:    18,
     guideOpacity:      0.90,
-    childStrokeColor:  '#FF1744',
-    childOutlineColor: '#1B3D14',
-    childShadowColor:  'rgba(255,255,255,0.60)',
-    childLineWidth:    11,
+    childStrokeColor:  '#FF3D57',
+    childOutlineColor: '#13200B',
+    childShadowColor:  'rgba(255,255,255,0.78)',
+    childLineWidth:    13,
     msgReward:         'הדינוזאור עובר בעדינות ומנקה',
     msgClear:          'ננסה שוב ברוגע',
 
@@ -1109,10 +1109,10 @@ const WORLDS = {
     guideShadowColor:  'rgba(255,255,255,0.85)',
     guideLineWidth:    18,
     guideOpacity:      0.90,
-    childStrokeColor:  '#7B1FA2',
-    childOutlineColor: '#311B4D',
-    childShadowColor:  'rgba(255,255,255,0.65)',
-    childLineWidth:    11,
+    childStrokeColor:  '#9C27FF',
+    childOutlineColor: '#1F0E2E',
+    childShadowColor:  'rgba(255,255,255,0.78)',
+    childLineWidth:    13,
     msgReward:         'הקרוסלה עוברת בעדינות ומנקה',
     msgClear:          'ננסה שוב ברוגע',
 
