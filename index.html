@@ -510,7 +510,10 @@ const WORLDS = {
   sand: {
     rewardLabel:       '🌊 שלח גל',
     rewardBtnGradient: 'linear-gradient(135deg,#1254AF,#0292D4 60%,#20C4DC)',
-    dottedColor:       'rgba(150,85,25,0.32)',
+    guideStrokeColor:  '#3A2410',
+    guideShadowColor:  'rgba(255,250,235,0.88)',
+    guideLineWidth:    22,
+    guideOpacity:      0.92,
     msgReward:         'הים בא לחגוג את האות שלך',
     msgClear:          'ננסה שוב ברוגע',
 
@@ -575,7 +578,10 @@ const WORLDS = {
   snow: {
     rewardLabel:       '❄️ השלג מכסה הכל',
     rewardBtnGradient: 'linear-gradient(135deg,#1565C0,#4FA8E0 60%,#D6F0FF)',
-    dottedColor:       'rgba(20,90,180,0.40)',
+    guideStrokeColor:  '#0B3D78',
+    guideShadowColor:  'rgba(255,255,255,0.92)',
+    guideLineWidth:    20,
+    guideOpacity:      0.90,
     msgReward:         'השלג יורד בעדינות ומכסה הכל',
     msgClear:          'ננסה שוב ברוגע',
 
@@ -625,7 +631,10 @@ const WORLDS = {
   soccer: {
     rewardLabel:       '⚽ שלח כדור',
     rewardBtnGradient: 'linear-gradient(135deg,#1A6E1C,#2CA030 60%,#44B844)',
-    dottedColor:       'rgba(255,240,120,0.52)',
+    guideStrokeColor:  '#FFE45C',
+    guideShadowColor:  'rgba(15,50,15,0.55)',
+    guideLineWidth:    20,
+    guideOpacity:      0.92,
     msgClear:          'ננסה שוב ברוגע',
 
     msgRewardFn() {
@@ -796,7 +805,10 @@ const WORLDS = {
   rainbow: {
     rewardLabel:       '✨ קסם מנקה',
     rewardBtnGradient: 'linear-gradient(135deg,#7B61FF,#FF8FCB 60%,#FFD66B)',
-    dottedColor:       'rgba(120,110,165,0.35)',
+    guideStrokeColor:  '#33335A',
+    guideShadowColor:  'rgba(255,255,255,0.88)',
+    guideLineWidth:    20,
+    guideOpacity:      0.90,
     msgReward:         'הענן עובר בעדינות ומנקה',
     msgClear:          'ננסה שוב ברוגע',
 
@@ -863,7 +875,10 @@ const WORLDS = {
   jungle: {
     rewardLabel:       '🦖 הדינוזאור מנקה',
     rewardBtnGradient: 'linear-gradient(135deg,#4CAF50,#8BC34A 60%,#C5E1A5)',
-    dottedColor:       'rgba(70,140,75,0.35)',
+    guideStrokeColor:  '#1E4520',
+    guideShadowColor:  'rgba(255,255,255,0.85)',
+    guideLineWidth:    20,
+    guideOpacity:      0.90,
     msgReward:         'הדינוזאור עובר בעדינות ומנקה',
     msgClear:          'ננסה שוב ברוגע',
 
@@ -963,14 +978,10 @@ function restoreBase() {
   baseSnap ? ctx.putImageData(baseSnap, 0, 0) : buildBase();
 }
 
-function paintGuide(cW, cH) {
-  ctx.save();
-  ctx.strokeStyle = W().dottedColor;
-  ctx.lineWidth   = 18;
-  ctx.lineCap     = 'round';
-  ctx.lineJoin    = 'round';
-  ctx.setLineDash([5, 15]);
-
+// Draws the practice item's guide path/text using whatever stroke
+// settings are currently set on the context. Shared by both the halo
+// pass and the dashed main pass in paintGuide().
+function drawGuideContent(cW, cH) {
   if (practiceType === 'shapes') {
     drawShapeGuide(ITEMS[itemIdx], cW, cH);
   } else if (practiceType === 'word') {
@@ -983,8 +994,30 @@ function paintGuide(cW, cH) {
     ctx.textBaseline = 'middle';
     ctx.strokeText(item, cW / 2, cH / 2);
   }
+}
+
+function paintGuide(cW, cH) {
+  const w = W();
+  ctx.save();
+  ctx.lineCap  = 'round';
+  ctx.lineJoin = 'round';
+
+  // Pass 1: solid halo so the guide stands out from the background texture
+  ctx.globalAlpha = 1;
+  ctx.strokeStyle = w.guideShadowColor;
+  ctx.lineWidth   = w.guideLineWidth + 10;
+  ctx.setLineDash([]);
+  drawGuideContent(cW, cH);
+
+  // Pass 2: dashed main guide stroke on top of the halo
+  ctx.globalAlpha = w.guideOpacity;
+  ctx.strokeStyle = w.guideStrokeColor;
+  ctx.lineWidth   = w.guideLineWidth;
+  ctx.setLineDash([5, 15]);
+  drawGuideContent(cW, cH);
 
   ctx.setLineDash([]);
+  ctx.globalAlpha = 1;
   ctx.restore();
 }
 
