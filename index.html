@@ -49,6 +49,10 @@
       background: linear-gradient(to bottom,
         #CFE8FF 0%, #E8F2FF 45%, #FFFFFF 100%);
     }
+    body.world-jungle {
+      background: linear-gradient(to bottom,
+        #DCEFD7 0%, #C8E6C0 45%, #AFDBA6 100%);
+    }
 
     /* ── High-contrast text panel (works on every background) ─── */
     .panel {
@@ -98,6 +102,25 @@
       border-color: #fff;
       text-shadow: none;
     }
+
+    #wordInputWrap {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      width: 100%; max-width: 360px;
+    }
+    #wordInput {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: clamp(1.0rem, 3vw, 1.2rem);
+      font-family: inherit;
+      font-weight: 700;
+      text-align: center;
+      direction: rtl;
+      border: 2px solid rgba(255,255,255,0.6);
+      border-radius: 50px;
+      background: rgba(255,255,255,0.92);
+      color: #15202B;
+    }
+    #wordInput:focus { outline: 3px solid #44B844; }
 
     #startBtn {
       margin-top: 8px;
@@ -173,6 +196,9 @@
     body.world-rainbow #canvasWrap {
       box-shadow: 0 0 0 4px #FFFFFF, 0 0 0 7px #B3D9FF, 0 10px 24px rgba(150,150,220,0.18);
     }
+    body.world-jungle #canvasWrap {
+      box-shadow: 0 0 0 4px #FFFFFF, 0 0 0 7px #6FBF73, 0 10px 24px rgba(40,100,40,0.20);
+    }
 
     #mainCanvas {
       display: block;
@@ -223,6 +249,12 @@
       <button class="choice-btn type-btn active" data-type="letters">אותיות</button>
       <button class="choice-btn type-btn"        data-type="numbers">מספרים</button>
       <button class="choice-btn type-btn"        data-type="shapes">צורות</button>
+      <button class="choice-btn type-btn"        data-type="word">שם / מילה</button>
+    </div>
+
+    <div id="wordInputWrap" class="hidden">
+      <label for="wordInput" class="sectionLabel panel">הקלד שם או מילה קצרה</label>
+      <input type="text" id="wordInput" placeholder="שלום" maxlength="14">
     </div>
 
     <p class="sectionLabel panel">רקע</p>
@@ -231,6 +263,7 @@
       <button class="choice-btn world-btn"        data-world="snow">❄️ שלג</button>
       <button class="choice-btn world-btn"        data-world="soccer">⚽ כדורגל</button>
       <button class="choice-btn world-btn"        data-world="rainbow">🌈 קשת</button>
+      <button class="choice-btn world-btn"        data-world="jungle">🦖 ג'ונגל</button>
     </div>
 
     <button id="startBtn">▶ התחלה</button>
@@ -268,7 +301,8 @@ const HEBREW_LETTERS = ['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','
 const NUMBERS        = ['0','1','2','3','4','5','6','7','8','9'];
 const SHAPES         = ['קו','עיגול','ריבוע','משולש','גל','ספירלה'];
 
-const ITEM_LABELS = { letters: 'אות', numbers: 'מספר', shapes: 'צורה' };
+const ITEM_LABELS = { letters: 'אות', numbers: 'מספר', shapes: 'צורה', word: 'מילה' };
+const DEFAULT_WORD = 'שלום';
 
 function getItems(type) {
   if (type === 'numbers') return NUMBERS;
@@ -358,6 +392,83 @@ function drawCloud(ctx, cx, cy, r) {
   ctx.arc(cx + r * 0.55, cy + r * 0.10, r * 0.42, 0, Math.PI * 2);
   ctx.arc(cx - r * 0.05, cy - r * 0.30, r * 0.40, 0, Math.PI * 2);
   ctx.fill();
+  ctx.restore();
+}
+
+/* ============================================================
+   JUNGLE HELPERS  (friendly tree + dino)
+   ============================================================ */
+
+// Draw a simple, calm tree (trunk + round leaf clusters), anchored at
+// (x, y) being roughly the base of the trunk.
+function drawTree(ctx, x, y, scale) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(scale, scale);
+
+  ctx.fillStyle = '#A9784F';
+  ctx.fillRect(-6, -50, 12, 50);
+
+  ctx.fillStyle = '#6FBF73';
+  [[0,-58,32],[-26,-42,26],[26,-42,26]].forEach(([lx,ly,lr]) => {
+    ctx.beginPath(); ctx.arc(lx, ly, lr, 0, Math.PI * 2); ctx.fill();
+  });
+  ctx.fillStyle = '#8AD68E';
+  ctx.beginPath(); ctx.arc(-8, -66, 20, 0, Math.PI * 2); ctx.fill();
+
+  ctx.restore();
+}
+
+// Draw a small, friendly, rounded dinosaur centred at (cx, cy) with
+// "size" r. dir = 1 faces right, -1 faces left.
+function drawDino(ctx, cx, cy, r, dir) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.scale(dir, 1);
+
+  // tail
+  ctx.fillStyle = '#7BC67E';
+  ctx.beginPath();
+  ctx.moveTo(-r * 0.85, r * 0.05);
+  ctx.quadraticCurveTo(-r * 1.45, r * 0.30, -r * 1.25, -r * 0.10);
+  ctx.quadraticCurveTo(-r * 1.0, r * 0.05, -r * 0.65, r * 0.08);
+  ctx.closePath();
+  ctx.fill();
+
+  // legs
+  ctx.fillStyle = '#5FAE63';
+  ctx.beginPath(); ctx.ellipse(-r * 0.35, r * 0.55, r * 0.16, r * 0.22, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse( r * 0.25, r * 0.55, r * 0.16, r * 0.22, 0, 0, Math.PI * 2); ctx.fill();
+
+  // body
+  ctx.fillStyle = '#7BC67E';
+  ctx.beginPath();
+  ctx.ellipse(0, 0, r * 0.85, r * 0.62, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // soft rounded back bumps (no spikes)
+  ctx.fillStyle = '#5FAE63';
+  [[-r*0.32,-r*0.55],[0,-r*0.62],[r*0.32,-r*0.55]].forEach(([bx,by]) => {
+    ctx.beginPath(); ctx.arc(bx, by, r * 0.15, 0, Math.PI * 2); ctx.fill();
+  });
+
+  // head + snout
+  ctx.fillStyle = '#8FD893';
+  ctx.beginPath(); ctx.ellipse(r * 0.85, -r * 0.15, r * 0.42, r * 0.36, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(r * 1.20,  r * 0.02, r * 0.22, r * 0.18, 0, 0, Math.PI * 2); ctx.fill();
+
+  // eye
+  ctx.fillStyle = '#2E2E2E';
+  ctx.beginPath(); ctx.arc(r * 0.95, -r * 0.22, r * 0.05, 0, Math.PI * 2); ctx.fill();
+
+  // smile
+  ctx.strokeStyle = '#2E2E2E';
+  ctx.lineWidth = Math.max(1, r * 0.025);
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.arc(r * 1.05, 0, r * 0.18, 0.2 * Math.PI, 0.6 * Math.PI);
+  ctx.stroke();
+
   ctx.restore();
 }
 
@@ -747,6 +858,63 @@ const WORLDS = {
       })(performance.now());
     },
   },
+
+  /* ─── 🦖 Jungle ──────────────────────────────────────────── */
+  jungle: {
+    rewardLabel:       '🦖 הדינוזאור מנקה',
+    rewardBtnGradient: 'linear-gradient(135deg,#4CAF50,#8BC34A 60%,#C5E1A5)',
+    dottedColor:       'rgba(70,140,75,0.35)',
+    msgReward:         'הדינוזאור עובר בעדינות ומנקה',
+    msgClear:          'ננסה שוב ברוגע',
+
+    paintBackground(ctx, W, H) {
+      const g = ctx.createLinearGradient(0, 0, 0, H);
+      g.addColorStop(0, '#EAF7E8');
+      g.addColorStop(1, '#D3EFD2');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+
+      // Trees kept in the corners — the writing area stays clear.
+      const s = Math.min(W, H) / 220;
+      drawTree(ctx, W * 0.06, H * 1.0,  s * 0.9);
+      drawTree(ctx, W * 0.97, H * 1.02, s * 1.1);
+      drawTree(ctx, W * 0.02, H * 0.10, s * 0.6);
+      drawTree(ctx, W * 0.99, H * 0.12, s * 0.7);
+
+      // soft scattered leaves near the edges
+      ctx.fillStyle = 'rgba(111,191,115,0.22)';
+      [[W*0.04,H*0.42],[W*0.96,H*0.55],[W*0.5,H*0.03],[W*0.5,H*0.97]].forEach(([lx,ly]) => {
+        ctx.beginPath(); ctx.ellipse(lx, ly, W * 0.05, H * 0.03, 0.4, 0, Math.PI * 2); ctx.fill();
+      });
+    },
+
+    drawStroke(ctx, x1, y1, x2, y2) {
+      ctx.save(); ctx.lineCap='round'; ctx.lineJoin='round';
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+      ctx.strokeStyle='rgba(70,140,75,0.28)'; ctx.lineWidth=17; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+      ctx.strokeStyle='#2E5A30'; ctx.lineWidth=7; ctx.stroke();
+      ctx.restore();
+    },
+
+    rewardAnimation(ctx, snap, W, H, onDone, gen) {
+      const DUR    = 2600, t0 = performance.now();
+      const dinoR  = Math.min(W, H) * 0.16;
+      const groundY = H * 0.62;
+      (function frame(now) {
+        if (gen !== animGen) return;
+        const raw = Math.min((now - t0) / DUR, 1);
+        const cx  = -dinoR * 1.6 + raw * (W + dinoR * 3.2);
+        ctx.putImageData(snap, 0, 0);
+        const cleanW = Math.max(0, Math.floor(cx));
+        if (cleanW > 0 && baseSnap) {
+          ctx.putImageData(baseSnap, 0, 0, 0, 0, cleanW, H);
+        }
+        const bob = Math.sin(raw * Math.PI * 8) * dinoR * 0.05;
+        drawDino(ctx, cx, groundY + bob, dinoR, 1);
+        raw < 1 ? requestAnimationFrame(frame) : onDone();
+      })(performance.now());
+    },
+  },
 };
 
 /* ============================================================
@@ -805,6 +973,8 @@ function paintGuide(cW, cH) {
 
   if (practiceType === 'shapes') {
     drawShapeGuide(ITEMS[itemIdx], cW, cH);
+  } else if (practiceType === 'word') {
+    drawWordGuide(ITEMS[itemIdx], cW, cH);
   } else {
     const item = ITEMS[itemIdx];
     const size = Math.floor(Math.min(cW * 0.74, cH * 0.80));
@@ -816,6 +986,21 @@ function paintGuide(cW, cH) {
 
   ctx.setLineDash([]);
   ctx.restore();
+}
+
+// Draw the custom word centred on the canvas, shrinking the font size
+// automatically so it always fits within the canvas bounds.
+function drawWordGuide(word, cW, cH) {
+  ctx.textAlign    = 'center';
+  ctx.textBaseline = 'middle';
+  const maxWidth = cW * 0.86;
+  let size = Math.floor(cH * 0.6);
+  ctx.font = `bold ${size}px "Arial Hebrew","David",Arial,sans-serif`;
+  while (size > 16 && ctx.measureText(word).width > maxWidth) {
+    size -= 2;
+    ctx.font = `bold ${size}px "Arial Hebrew","David",Arial,sans-serif`;
+  }
+  ctx.strokeText(word, cW / 2, cH / 2);
 }
 
 // Draw a dashed outline of the given shape, centred on the canvas.
@@ -949,6 +1134,10 @@ function clearDrawing() {
 
 function nextItem() {
   if (isAnimating) return;
+  if (practiceType === 'word') {
+    showMsg('נמשיך עם אותה מילה');
+    return;
+  }
   itemIdx = (itemIdx + 1) % ITEMS.length;
   buildBase();
   updateIndicator();
@@ -978,6 +1167,7 @@ function switchType(newType) {
   practiceType = newType;
   document.querySelectorAll('.type-btn').forEach(b =>
     b.classList.toggle('active', b.dataset.type === newType));
+  document.getElementById('wordInputWrap').classList.toggle('hidden', newType !== 'word');
 }
 
 /* ============================================================
@@ -985,7 +1175,12 @@ function switchType(newType) {
    ============================================================ */
 
 function startPractice() {
-  ITEMS       = getItems(practiceType);
+  if (practiceType === 'word') {
+    const typed = document.getElementById('wordInput').value.trim();
+    ITEMS = [typed || DEFAULT_WORD];
+  } else {
+    ITEMS = getItems(practiceType);
+  }
   itemIdx     = 0;
   itemVisible = false;
   document.getElementById('showBtn').textContent = '👁️ הצג';
@@ -1024,9 +1219,13 @@ function setButtons(enabled) {
 }
 
 function updateIndicator() {
+  const el = document.getElementById('letterIndicator');
+  if (practiceType === 'word') {
+    el.textContent = itemVisible ? `מילה: ${ITEMS[itemIdx]}` : 'לחצו על "הצג" כדי לראות את המילה';
+    return;
+  }
   const total = ITEMS.length;
   const n     = itemIdx + 1;
-  const el    = document.getElementById('letterIndicator');
   if (itemVisible) {
     const label = ITEM_LABELS[practiceType];
     el.textContent = `${label} ${ITEMS[itemIdx]}  ·  ${n} מתוך ${total}`;
