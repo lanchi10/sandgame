@@ -61,6 +61,10 @@
       background: linear-gradient(to bottom,
         #1B3A1E 0%, #2E5A30 45%, #4A7A40 100%);
     }
+    body.world-parkPhoto {
+      background: linear-gradient(to bottom,
+        #BDE6FF 0%, #E8F6FF 45%, #FFF6E0 100%);
+    }
 
     /* ── High-contrast text panel (works on every background) ─── */
     .panel {
@@ -213,6 +217,9 @@
     body.world-junglePhoto #canvasWrap {
       box-shadow: 0 0 0 4px #FFFFFF, 0 0 0 7px #2E5A30, 0 10px 26px rgba(20,60,20,0.32);
     }
+    body.world-parkPhoto #canvasWrap {
+      box-shadow: 0 0 0 4px #FFFFFF, 0 0 0 7px #4DABF7, 0 10px 24px rgba(80,160,220,0.22);
+    }
 
     #mainCanvas {
       display: block;
@@ -280,6 +287,7 @@
       <button class="choice-btn world-btn"        data-world="jungle">🦖 ג'ונגל</button>
       <button class="choice-btn world-btn"        data-world="fairyPhoto">🧚 יער פיות</button>
       <button class="choice-btn world-btn"        data-world="junglePhoto">🦖 ג'ונגל ריאליסטי</button>
+      <button class="choice-btn world-btn"        data-world="parkPhoto">🎡 לונה פארק</button>
     </div>
 
     <button id="startBtn">▶ התחלה</button>
@@ -411,6 +419,29 @@ function drawCloud(ctx, cx, cy, r) {
   ctx.restore();
 }
 
+// A small bunch of friendly balloons, centred at (cx, cy) with overall
+// "size" r — used as the calm "magic spin" cleanup for the park world.
+function drawBalloons(ctx, cx, cy, r) {
+  const colors  = ['#FF6B6B', '#FFD43B', '#69DB7C', '#4DABF7', '#9775FA'];
+  const offsets = [[-r*0.5,-r*0.2], [0,-r*0.5], [r*0.5,-r*0.2], [-r*0.25,r*0.1], [r*0.25,r*0.1]];
+  ctx.save();
+  offsets.forEach(([dx, dy], i) => {
+    const bx = cx + dx, by = cy + dy;
+    ctx.strokeStyle = 'rgba(120,90,60,0.55)';
+    ctx.lineWidth   = Math.max(1, r * 0.02);
+    ctx.beginPath();
+    ctx.moveTo(bx, by + r * 0.32);
+    ctx.lineTo(cx, cy + r * 0.9);
+    ctx.stroke();
+
+    ctx.fillStyle = colors[i % colors.length];
+    ctx.beginPath();
+    ctx.ellipse(bx, by, r * 0.32, r * 0.38, 0, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  ctx.restore();
+}
+
 /* ============================================================
    JUNGLE HELPERS  (friendly tree + dino)
    ============================================================ */
@@ -502,6 +533,7 @@ const ASSETS = {
   snowBg:    loadImg('assets/backgrounds/snow-bg.svg'),
   fairyBg:   loadImg('images/fi.png'),
   jungleBg:  loadImg('images/ju.png'),
+  parkBg:    loadImg('images/lp.png'),
 };
 function drawCoverImage(ctx, W, H, img, alpha) {
   if (!img.complete || !img.naturalWidth) return;
@@ -1064,6 +1096,48 @@ const WORLDS = {
         }
         const bob = Math.sin(raw * Math.PI * 8) * dinoR * 0.05;
         drawDino(ctx, cx, groundY + bob, dinoR, 1);
+        raw < 1 ? requestAnimationFrame(frame) : onDone();
+      })(performance.now());
+    },
+  },
+
+  /* ─── 🎡 Amusement park (photo) ─────────────────────────────── */
+  parkPhoto: {
+    rewardLabel:       '🎡 סיבוב קסם',
+    rewardBtnGradient: 'linear-gradient(135deg,#FF6B6B,#FFD43B 60%,#4DABF7)',
+    guideStrokeColor:  '#0D4C6B',
+    guideShadowColor:  'rgba(255,255,255,0.85)',
+    guideLineWidth:    18,
+    guideOpacity:      0.90,
+    childStrokeColor:  '#7B1FA2',
+    childOutlineColor: '#311B4D',
+    childShadowColor:  'rgba(255,255,255,0.65)',
+    childLineWidth:    11,
+    msgReward:         'הקרוסלה עוברת בעדינות ומנקה',
+    msgClear:          'ננסה שוב ברוגע',
+
+    paintBackground(ctx, W, H) {
+      paintVividPhotoBackground(ctx, W, H, '#FFF6E0', ASSETS.parkBg);
+    },
+
+    drawStroke(ctx, x1, y1, x2, y2) {
+      drawChildStroke(ctx, x1, y1, x2, y2);
+    },
+
+    rewardAnimation(ctx, snap, W, H, onDone, gen) {
+      const DUR = 2400, t0 = performance.now();
+      const balloonR = Math.min(W, H) * 0.20;
+      (function frame(now) {
+        if (gen !== animGen) return;
+        const raw = Math.min((now - t0) / DUR, 1);
+        const cx  = -balloonR * 1.4 + raw * (W + balloonR * 2.8);
+        ctx.putImageData(snap, 0, 0);
+        const cleanW = Math.max(0, Math.floor(cx));
+        if (cleanW > 0 && baseSnap) {
+          ctx.putImageData(baseSnap, 0, 0, 0, 0, cleanW, H);
+        }
+        const bob = Math.sin(raw * Math.PI * 6) * balloonR * 0.08;
+        drawBalloons(ctx, cx, H * 0.42 + bob, balloonR);
         raw < 1 ? requestAnimationFrame(frame) : onDone();
       })(performance.now());
     },
