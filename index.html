@@ -686,11 +686,18 @@ function getWritingPad(W, H) {
   return { x: (W - w) / 2, y: (H - h) / 2, w, h };
 }
 
+// fireRescue's pad is shifted toward the fire-station side and slightly
+// smaller, so the fire truck on the left of images/ff.png stays visible.
+function getFireWritingPad(W, H) {
+  const w = W * 0.56, h = H * 0.58;
+  return { x: W * 0.62 - w / 2, y: (H - h) / 2, w, h };
+}
+
 // Sharp, vivid photo background (no wash, no blur, no desaturation)
 // with a clean rounded white "writing pad" card in the centre. The
 // guide and the child's stroke live on this card; the photo itself
 // stays crisp and decorative all around it.
-function paintPhotoWithWritingPad(ctx, W, H, baseColor, img) {
+function paintPhotoWithWritingPad(ctx, W, H, baseColor, img, padFn = getWritingPad) {
   ctx.fillStyle = baseColor;
   ctx.fillRect(0, 0, W, H);
 
@@ -703,7 +710,7 @@ function paintPhotoWithWritingPad(ctx, W, H, baseColor, img) {
     ctx.restore();
   }
 
-  const pad = getWritingPad(W, H);
+  const pad = padFn(W, H);
   const r   = Math.min(pad.w, pad.h) * 0.10;
   ctx.save();
   ctx.shadowColor   = 'rgba(0,0,0,0.18)';
@@ -1283,20 +1290,20 @@ const WORLDS = {
   fireRescue: {
     rewardLabel:       '🚒 הכבאית מנקה',
     rewardBtnGradient: 'linear-gradient(135deg,#FF7043,#FFCA28 60%,#42A5F5)',
-    guideStrokeColor:  '#E65100',
-    guideShadowColor:  'rgba(255,205,130,0.55)',
-    guideLineWidth:    15,
-    guideOpacity:      0.55,
+    guideStrokeColor:  '#D84315',
+    guideShadowColor:  'rgba(255,183,77,0.65)',
+    guideLineWidth:    16,
+    guideOpacity:      0.68,
     childStrokeColor:  '#1565C0',
     childOutlineColor: '#0A2A52',
-    childShadowColor:  'rgba(21,101,192,0.18)',
+    childShadowColor:  'rgba(21,101,192,0.22)',
     childLineWidth:    13,
     msgReward:         'הכבאית עוברת בעדינות ומנקה',
     msgClear:          'ננסה שוב ברוגע',
-    writingPad:        getWritingPad,
+    writingPad:        getFireWritingPad,
 
     paintBackground(ctx, W, H) {
-      paintPhotoWithWritingPad(ctx, W, H, '#FFF3E0', ASSETS.fireBg);
+      paintPhotoWithWritingPad(ctx, W, H, '#FFF3E0', ASSETS.fireBg, getFireWritingPad);
     },
 
     drawStroke(ctx, x1, y1, x2, y2) {
