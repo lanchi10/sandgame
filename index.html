@@ -638,7 +638,7 @@ function drawVividCoverImage(ctx, W, H, img, alpha) {
   const iw = img.naturalWidth * scale, ih = img.naturalHeight * scale;
   ctx.save();
   ctx.globalAlpha = alpha;
-  ctx.filter = 'saturate(1.18) contrast(1.10) brightness(1.02)';
+  ctx.filter = 'saturate(1.20) contrast(1.12) brightness(1.02)';
   ctx.drawImage(img, (W - iw) / 2, (H - ih) / 2, iw, ih);
   ctx.restore();
 }
@@ -649,13 +649,13 @@ function drawVividCoverImage(ctx, W, H, img, alpha) {
 function paintVividPhotoBackground(ctx, W, H, baseColor, img) {
   ctx.fillStyle = baseColor;
   ctx.fillRect(0, 0, W, H);
-  drawVividCoverImage(ctx, W, H, img, 0.92);
+  drawVividCoverImage(ctx, W, H, img, 0.97);
 
   const cx = W / 2, cy = H / 2;
-  const innerR = Math.min(W, H) * 0.16;
-  const outerR = Math.max(W, H) * 0.62;
+  const innerR = Math.min(W, H) * 0.14;
+  const outerR = Math.max(W, H) * 0.55;
   const g = ctx.createRadialGradient(cx, cy, innerR, cx, cy, outerR);
-  g.addColorStop(0, 'rgba(255,255,255,0.35)');
+  g.addColorStop(0, 'rgba(255,255,255,0.22)');
   g.addColorStop(1, 'rgba(255,255,255,0)');
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, W, H);
@@ -705,7 +705,7 @@ function paintPhotoWithWritingPad(ctx, W, H, baseColor, img, padFn = getWritingP
     const scale = Math.max(W / img.naturalWidth, H / img.naturalHeight);
     const iw = img.naturalWidth * scale, ih = img.naturalHeight * scale;
     ctx.save();
-    ctx.filter = 'saturate(1.10) contrast(1.05) brightness(1.02)';
+    ctx.filter = 'saturate(1.15) contrast(1.08) brightness(1.02)';
     ctx.drawImage(img, (W - iw) / 2, (H - ih) / 2, iw, ih);
     ctx.restore();
   }
@@ -1156,8 +1156,8 @@ const WORLDS = {
     guideOpacity:      0.90,
     childStrokeColor:  '#00E5C7',
     childOutlineColor: '#00251F',
-    childShadowColor:  'rgba(255,255,255,0.78)',
-    childLineWidth:    13,
+    childShadowColor:  'rgba(255,255,255,0.85)',
+    childLineWidth:    15,
     msgReward:         'אבקת הפיות עוברת בעדינות ומנקה',
     msgClear:          'ננסה שוב ברוגע',
 
@@ -1211,8 +1211,8 @@ const WORLDS = {
     guideOpacity:      0.90,
     childStrokeColor:  '#FF3D57',
     childOutlineColor: '#13200B',
-    childShadowColor:  'rgba(255,255,255,0.78)',
-    childLineWidth:    13,
+    childShadowColor:  'rgba(255,255,255,0.85)',
+    childLineWidth:    15,
     msgReward:         'הדינוזאור עובר בעדינות ומנקה',
     msgClear:          'ננסה שוב ברוגע',
 
@@ -1254,8 +1254,8 @@ const WORLDS = {
     guideOpacity:      0.90,
     childStrokeColor:  '#9C27FF',
     childOutlineColor: '#1F0E2E',
-    childShadowColor:  'rgba(255,255,255,0.78)',
-    childLineWidth:    13,
+    childShadowColor:  'rgba(255,255,255,0.85)',
+    childLineWidth:    15,
     msgReward:         'הקרוסלה עוברת בעדינות ומנקה',
     msgClear:          'ננסה שוב ברוגע',
 
