@@ -73,6 +73,18 @@
       background: linear-gradient(to bottom,
         #F8BBD0 0%, #E1BEE7 45%, #FFF9C4 100%);
     }
+    body.world-racingPhoto {
+      background: linear-gradient(to bottom,
+        #CFD8DC 0%, #ECEFF1 45%, #FFE082 100%);
+    }
+    body.world-constructionPhoto {
+      background: linear-gradient(to bottom,
+        #FFE0B2 0%, #FFF8E1 45%, #D7CCC8 100%);
+    }
+    body.world-candyPhoto {
+      background: linear-gradient(to bottom,
+        #F3E5F5 0%, #FCE4EC 45%, #FFF9C4 100%);
+    }
 
     /* ── High-contrast text panel (works on every background) ─── */
     .panel {
@@ -234,6 +246,15 @@
     body.world-unicornParty #canvasWrap {
       box-shadow: 0 0 0 4px #FFFFFF, 0 0 0 7px #CE93D8, 0 10px 24px rgba(180,100,200,0.22);
     }
+    body.world-racingPhoto #canvasWrap {
+      box-shadow: 0 0 0 4px #FFFFFF, 0 0 0 7px #0D47A1, 0 10px 24px rgba(13,71,161,0.22);
+    }
+    body.world-constructionPhoto #canvasWrap {
+      box-shadow: 0 0 0 4px #FFFFFF, 0 0 0 7px #FBC02D, 0 10px 24px rgba(180,130,20,0.25);
+    }
+    body.world-candyPhoto #canvasWrap {
+      box-shadow: 0 0 0 4px #FFFFFF, 0 0 0 7px #FF80AB, 0 10px 24px rgba(220,80,140,0.22);
+    }
 
     #mainCanvas {
       display: block;
@@ -304,6 +325,9 @@
       <button class="choice-btn world-btn"        data-world="parkPhoto">🎡 לונה פארק</button>
       <button class="choice-btn world-btn"        data-world="fireRescue">🚒 מכבי אש</button>
       <button class="choice-btn world-btn"        data-world="unicornParty">🦄 יוניקורן</button>
+      <button class="choice-btn world-btn"        data-world="racingPhoto">🏎️ מכוניות מרוץ</button>
+      <button class="choice-btn world-btn"        data-world="constructionPhoto">🚜 אתר בנייה</button>
+      <button class="choice-btn world-btn"        data-world="candyPhoto">🍭 עולם הממתקים</button>
     </div>
 
     <button id="startBtn">▶ התחלה</button>
@@ -522,6 +546,94 @@ function drawMagicWand(ctx, cx, cy, r) {
   ctx.restore();
 }
 
+// A small, friendly race car (body + cabin + spoiler + racing stripe +
+// wheels), centred at (cx, cy) with overall "size" r — the calm
+// "race car" cleanup for the racing world.
+function drawRaceCar(ctx, cx, cy, r) {
+  ctx.save();
+  ctx.fillStyle = '#E53935';
+  pathRoundedRect(ctx, cx - r, cy - r * 0.30, r * 1.9, r * 0.55, r * 0.16);
+  ctx.fill();
+
+  ctx.fillStyle = '#FFEE58';
+  pathRoundedRect(ctx, cx - r * 0.25, cy - r * 0.62, r * 0.75, r * 0.40, r * 0.12);
+  ctx.fill();
+
+  ctx.fillStyle = '#90CAF9';
+  pathRoundedRect(ctx, cx - r * 0.10, cy - r * 0.55, r * 0.45, r * 0.26, r * 0.06);
+  ctx.fill();
+
+  ctx.fillStyle = '#B71C1C';
+  pathRoundedRect(ctx, cx + r * 0.75, cy - r * 0.55, r * 0.18, r * 0.55, r * 0.05);
+  ctx.fill();
+
+  ctx.fillStyle = '#FFFFFF';
+  pathRoundedRect(ctx, cx - r * 0.9, cy - r * 0.06, r * 1.7, r * 0.12, r * 0.04);
+  ctx.fill();
+
+  [cx - r * 0.55, cx + r * 0.55].forEach(wx => {
+    ctx.fillStyle = '#212121';
+    ctx.beginPath(); ctx.arc(wx, cy + r * 0.30, r * 0.24, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#BDBDBD';
+    ctx.beginPath(); ctx.arc(wx, cy + r * 0.30, r * 0.10, 0, Math.PI * 2); ctx.fill();
+  });
+  ctx.restore();
+}
+
+// A small, friendly bulldozer (tracks + body + cab + front blade),
+// centred at (cx, cy) with overall "size" r — the calm "bulldozer"
+// cleanup for the construction world.
+function drawBulldozer(ctx, cx, cy, r) {
+  ctx.save();
+  ctx.fillStyle = '#424242';
+  pathRoundedRect(ctx, cx - r * 0.95, cy + r * 0.15, r * 1.7, r * 0.40, r * 0.18);
+  ctx.fill();
+
+  ctx.fillStyle = '#FBC02D';
+  pathRoundedRect(ctx, cx - r * 0.75, cy - r * 0.35, r * 1.35, r * 0.55, r * 0.14);
+  ctx.fill();
+
+  ctx.fillStyle = '#FDD835';
+  pathRoundedRect(ctx, cx - r * 0.55, cy - r * 0.78, r * 0.65, r * 0.50, r * 0.12);
+  ctx.fill();
+
+  ctx.fillStyle = '#90CAF9';
+  pathRoundedRect(ctx, cx - r * 0.45, cy - r * 0.68, r * 0.45, r * 0.28, r * 0.06);
+  ctx.fill();
+
+  ctx.fillStyle = '#757575';
+  pathRoundedRect(ctx, cx + r * 0.55, cy - r * 0.30, r * 0.16, r * 0.65, r * 0.05);
+  ctx.fill();
+  ctx.restore();
+}
+
+// A small lollipop (striped candy head + stick), centred at (cx, cy)
+// with overall "size" r — the calm "candy" cleanup for the candy world.
+function drawLollipop(ctx, cx, cy, r) {
+  ctx.save();
+  ctx.strokeStyle = '#FFFFFF';
+  ctx.lineWidth   = Math.max(2, r * 0.10);
+  ctx.lineCap     = 'round';
+  ctx.beginPath();
+  ctx.moveTo(cx, cy + r * 0.35);
+  ctx.lineTo(cx, cy + r * 1.0);
+  ctx.stroke();
+
+  ctx.fillStyle = '#FF80AB';
+  ctx.beginPath();
+  ctx.arc(cx, cy, r * 0.6, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.lineWidth = Math.max(1, r * 0.07);
+  ctx.beginPath();
+  ctx.arc(cx, cy, r * 0.45, 0.6, Math.PI * 1.6);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(cx, cy, r * 0.25, Math.PI * 0.4, Math.PI * 2.2);
+  ctx.stroke();
+  ctx.restore();
+}
+
 /* ============================================================
    JUNGLE HELPERS  (friendly tree + dino)
    ============================================================ */
@@ -616,6 +728,9 @@ const ASSETS = {
   parkBg:    loadImg('images/lp.png'),
   fireBg:    loadImg('images/ff.png'),
   unicornBg: loadImg('images/yk.png'),
+  racingBg:       loadImg('images/mm.png'),
+  constructionBg: loadImg('images/wr.png'),
+  candyBg:        loadImg('images/sw.png'),
 };
 function drawCoverImage(ctx, W, H, img, alpha) {
   if (!img.complete || !img.naturalWidth) return;
@@ -1395,6 +1510,133 @@ const WORLDS = {
         });
         ctx.globalAlpha = 1;
         drawMagicWand(ctx, cx, H / 2 + bob, wandR);
+        raw < 1 ? requestAnimationFrame(frame) : onDone();
+      })(performance.now());
+    },
+  },
+
+  /* ─── 🏎️ Racing (photo + soft writing zone) ─────────────────── */
+  racingPhoto: {
+    rewardLabel:       '🏎️ המכונית מנקה',
+    rewardBtnGradient: 'linear-gradient(135deg,#FF6F00,#FFEE58 60%,#42A5F5)',
+    guideStrokeColor:  '#0D47A1',
+    guideShadowColor:  'rgba(255,255,255,0.78)',
+    guideLineWidth:    16,
+    guideOpacity:      0.70,
+    childStrokeColor:  '#FF6F00',
+    childOutlineColor: '#3E1F00',
+    childShadowColor:  'rgba(255,255,255,0.65)',
+    childLineWidth:    15,
+    msgReward:         'המכונית עוברת בעדינות ומנקה',
+    msgClear:          'ננסה שוב ברוגע',
+    writingPad:        getWritingPad,
+
+    paintBackground(ctx, W, H) {
+      paintPhotoWithWritingZone(ctx, W, H, '#ECEFF1', ASSETS.racingBg);
+    },
+
+    drawStroke(ctx, x1, y1, x2, y2) {
+      drawChildStroke(ctx, x1, y1, x2, y2);
+    },
+
+    rewardAnimation(ctx, snap, W, H, onDone, gen) {
+      const DUR = 2400, t0 = performance.now();
+      const carR = Math.min(W, H) * 0.18;
+      (function frame(now) {
+        if (gen !== animGen) return;
+        const raw = Math.min((now - t0) / DUR, 1);
+        const cx  = -carR * 1.6 + raw * (W + carR * 3.2);
+        ctx.putImageData(snap, 0, 0);
+        const cleanW = Math.max(0, Math.floor(cx));
+        if (cleanW > 0 && baseSnap) {
+          ctx.putImageData(baseSnap, 0, 0, 0, 0, cleanW, H);
+        }
+        drawRaceCar(ctx, cx, H / 2, carR);
+        raw < 1 ? requestAnimationFrame(frame) : onDone();
+      })(performance.now());
+    },
+  },
+
+  /* ─── 🚜 Construction site (photo + soft writing zone) ───────── */
+  constructionPhoto: {
+    rewardLabel:       '🚜 הבולדוזר מנקה',
+    rewardBtnGradient: 'linear-gradient(135deg,#FBC02D,#FFE082 60%,#8D6E63)',
+    guideStrokeColor:  '#E65100',
+    guideShadowColor:  'rgba(255,255,255,0.78)',
+    guideLineWidth:    16,
+    guideOpacity:      0.70,
+    childStrokeColor:  '#2E7D32',
+    childOutlineColor: '#0D2B0F',
+    childShadowColor:  'rgba(255,255,255,0.65)',
+    childLineWidth:    15,
+    msgReward:         'הבולדוזר עובר בעדינות ומיישר',
+    msgClear:          'ננסה שוב ברוגע',
+    writingPad:        getWritingPad,
+
+    paintBackground(ctx, W, H) {
+      paintPhotoWithWritingZone(ctx, W, H, '#FFF8E1', ASSETS.constructionBg);
+    },
+
+    drawStroke(ctx, x1, y1, x2, y2) {
+      drawChildStroke(ctx, x1, y1, x2, y2);
+    },
+
+    rewardAnimation(ctx, snap, W, H, onDone, gen) {
+      const DUR = 2600, t0 = performance.now();
+      const bullR = Math.min(W, H) * 0.18;
+      (function frame(now) {
+        if (gen !== animGen) return;
+        const raw = Math.min((now - t0) / DUR, 1);
+        const cx  = -bullR * 1.6 + raw * (W + bullR * 3.2);
+        ctx.putImageData(snap, 0, 0);
+        const cleanW = Math.max(0, Math.floor(cx));
+        if (cleanW > 0 && baseSnap) {
+          ctx.putImageData(baseSnap, 0, 0, 0, 0, cleanW, H);
+        }
+        drawBulldozer(ctx, cx, H / 2, bullR);
+        raw < 1 ? requestAnimationFrame(frame) : onDone();
+      })(performance.now());
+    },
+  },
+
+  /* ─── 🍭 Candy world (photo + soft writing zone) ─────────────── */
+  candyPhoto: {
+    rewardLabel:       '🍭 הסוכרייה מנקה',
+    rewardBtnGradient: 'linear-gradient(135deg,#FF80AB,#CE93D8 60%,#80DEEA)',
+    guideStrokeColor:  '#6A1B9A',
+    guideShadowColor:  'rgba(255,255,255,0.78)',
+    guideLineWidth:    16,
+    guideOpacity:      0.65,
+    childStrokeColor:  '#00ACC1',
+    childOutlineColor: '#01304A',
+    childShadowColor:  'rgba(255,255,255,0.65)',
+    childLineWidth:    15,
+    msgReward:         'הסוכרייה עוברת בעדינות ומנקה',
+    msgClear:          'ננסה שוב ברוגע',
+    writingPad:        getWritingPad,
+
+    paintBackground(ctx, W, H) {
+      paintPhotoWithWritingZone(ctx, W, H, '#F3E5F5', ASSETS.candyBg);
+    },
+
+    drawStroke(ctx, x1, y1, x2, y2) {
+      drawChildStroke(ctx, x1, y1, x2, y2);
+    },
+
+    rewardAnimation(ctx, snap, W, H, onDone, gen) {
+      const DUR = 2400, t0 = performance.now();
+      const candyR = Math.min(W, H) * 0.16;
+      (function frame(now) {
+        if (gen !== animGen) return;
+        const raw = Math.min((now - t0) / DUR, 1);
+        const cx  = -candyR * 1.4 + raw * (W + candyR * 2.8);
+        ctx.putImageData(snap, 0, 0);
+        const cleanW = Math.max(0, Math.floor(cx));
+        if (cleanW > 0 && baseSnap) {
+          ctx.putImageData(baseSnap, 0, 0, 0, 0, cleanW, H);
+        }
+        const bob = Math.sin(raw * Math.PI * 6) * candyR * 0.08;
+        drawLollipop(ctx, cx, H / 2 + bob, candyR);
         raw < 1 ? requestAnimationFrame(frame) : onDone();
       })(performance.now());
     },
