@@ -694,10 +694,11 @@ function getFireWritingPad(W, H) {
 }
 
 // Sharp, vivid photo background (no wash, no blur, no desaturation)
-// with a clean rounded white "writing pad" card in the centre. The
-// guide and the child's stroke live on this card; the photo itself
-// stays crisp and decorative all around it.
-function paintPhotoWithWritingPad(ctx, W, H, baseColor, img, padFn = getWritingPad) {
+// with a soft elliptical "writing zone" - a gentle radial glow rather
+// than an opaque card - so the picture stays visible through it. The
+// guide and the child's stroke get their own outline/halo for contrast,
+// so the zone only needs to lift the image's brightness a little.
+function paintPhotoWithWritingZone(ctx, W, H, baseColor, img, zoneFn = getWritingPad, zoneOpacity = 0.6) {
   ctx.fillStyle = baseColor;
   ctx.fillRect(0, 0, W, H);
 
@@ -710,15 +711,17 @@ function paintPhotoWithWritingPad(ctx, W, H, baseColor, img, padFn = getWritingP
     ctx.restore();
   }
 
-  const pad = padFn(W, H);
-  const r   = Math.min(pad.w, pad.h) * 0.10;
+  const zone = zoneFn(W, H);
+  const cx = zone.x + zone.w / 2, cy = zone.y + zone.h / 2;
   ctx.save();
-  ctx.shadowColor   = 'rgba(0,0,0,0.18)';
-  ctx.shadowBlur    = 18;
-  ctx.shadowOffsetY = 6;
-  ctx.fillStyle     = 'rgba(255,255,255,0.95)';
-  pathRoundedRect(ctx, pad.x, pad.y, pad.w, pad.h, r);
-  ctx.fill();
+  ctx.translate(cx, cy);
+  ctx.scale(zone.w / 2, zone.h / 2);
+  const g = ctx.createRadialGradient(0, 0, 0, 0, 0, 1);
+  g.addColorStop(0,   `rgba(255,255,255,${zoneOpacity})`);
+  g.addColorStop(0.7, `rgba(255,255,255,${zoneOpacity * 0.55})`);
+  g.addColorStop(1,   'rgba(255,255,255,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(-1, -1, 2, 2);
   ctx.restore();
 }
 
@@ -1286,24 +1289,24 @@ const WORLDS = {
     },
   },
 
-  /* ─── 🚒 Fire rescue (photo + writing pad) ──────────────────── */
+  /* ─── 🚒 Fire rescue (photo + soft writing zone) ─────────────── */
   fireRescue: {
     rewardLabel:       '🚒 הכבאית מנקה',
     rewardBtnGradient: 'linear-gradient(135deg,#FF7043,#FFCA28 60%,#42A5F5)',
     guideStrokeColor:  '#D84315',
-    guideShadowColor:  'rgba(255,183,77,0.65)',
+    guideShadowColor:  'rgba(255,255,255,0.80)',
     guideLineWidth:    16,
-    guideOpacity:      0.68,
+    guideOpacity:      0.70,
     childStrokeColor:  '#1565C0',
     childOutlineColor: '#0A2A52',
-    childShadowColor:  'rgba(21,101,192,0.22)',
-    childLineWidth:    13,
+    childShadowColor:  'rgba(255,255,255,0.65)',
+    childLineWidth:    15,
     msgReward:         'הכבאית עוברת בעדינות ומנקה',
     msgClear:          'ננסה שוב ברוגע',
     writingPad:        getFireWritingPad,
 
     paintBackground(ctx, W, H) {
-      paintPhotoWithWritingPad(ctx, W, H, '#FFF3E0', ASSETS.fireBg, getFireWritingPad);
+      paintPhotoWithWritingZone(ctx, W, H, '#FFF3E0', ASSETS.fireBg, getFireWritingPad);
     },
 
     drawStroke(ctx, x1, y1, x2, y2) {
@@ -1329,24 +1332,24 @@ const WORLDS = {
     },
   },
 
-  /* ─── 🦄 Unicorn party (photo + writing pad) ────────────────── */
+  /* ─── 🦄 Unicorn party (photo + soft writing zone) ──────────── */
   unicornParty: {
     rewardLabel:       '🦄 קסם יוניקורן',
     rewardBtnGradient: 'linear-gradient(135deg,#F8BBD0,#CE93D8 60%,#FFD54F)',
     guideStrokeColor:  '#7B1FA2',
-    guideShadowColor:  'rgba(225,190,255,0.60)',
+    guideShadowColor:  'rgba(255,255,255,0.75)',
     guideLineWidth:    15,
-    guideOpacity:      0.55,
+    guideOpacity:      0.65,
     childStrokeColor:  '#AD1457',
     childOutlineColor: '#4A0E2B',
-    childShadowColor:  'rgba(173,20,87,0.18)',
-    childLineWidth:    13,
+    childShadowColor:  'rgba(255,255,255,0.65)',
+    childLineWidth:    15,
     msgReward:         'אבקת הקסם עוברת בעדינות ומנקה',
     msgClear:          'ננסה שוב ברוגע',
     writingPad:        getWritingPad,
 
     paintBackground(ctx, W, H) {
-      paintPhotoWithWritingPad(ctx, W, H, '#FCE4EC', ASSETS.unicornBg);
+      paintPhotoWithWritingZone(ctx, W, H, '#FCE4EC', ASSETS.unicornBg);
     },
 
     drawStroke(ctx, x1, y1, x2, y2) {
