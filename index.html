@@ -632,9 +632,21 @@ function paintImageBackground(ctx, W, H, baseColor, img, alpha = 0.20) {
   drawCoverImage(ctx, W, H, img, alpha);
 }
 
+// Like CSS "background-size: cover", but caps how much of the image gets
+// cropped on its overflowing side. On small/portrait screens the canvas
+// becomes much taller relative to its width than these 4:3 photos, so a
+// plain "cover" slices off a large chunk of each side. The cap keeps the
+// crop moderate while letting the photo fill the canvas closely, instead
+// of shrinking it down with large empty-colour margins on the other axis.
+function coverScaleCapped(W, H, iw, ih, maxCrop = 0.20) {
+  const coverScale   = Math.max(W / iw, H / ih);
+  const containScale = Math.min(W / iw, H / ih);
+  return Math.min(coverScale, containScale / (1 - maxCrop));
+}
+
 function drawVividCoverImage(ctx, W, H, img, alpha) {
   if (!img.complete || !img.naturalWidth) return;
-  const scale = Math.max(W / img.naturalWidth, H / img.naturalHeight);
+  const scale = coverScaleCapped(W, H, img.naturalWidth, img.naturalHeight);
   const iw = img.naturalWidth * scale, ih = img.naturalHeight * scale;
   ctx.save();
   ctx.globalAlpha = alpha;
@@ -703,7 +715,7 @@ function paintPhotoWithWritingZone(ctx, W, H, baseColor, img, zoneFn = getWritin
   ctx.fillRect(0, 0, W, H);
 
   if (img.complete && img.naturalWidth) {
-    const scale = Math.max(W / img.naturalWidth, H / img.naturalHeight);
+    const scale = coverScaleCapped(W, H, img.naturalWidth, img.naturalHeight);
     const iw = img.naturalWidth * scale, ih = img.naturalHeight * scale;
     ctx.save();
     ctx.filter = 'saturate(1.15) contrast(1.08) brightness(1.02)';
