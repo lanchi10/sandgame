@@ -825,12 +825,12 @@ function getFireWritingPad(W, H) {
 // than an opaque card - so the picture stays visible through it. The
 // guide and the child's stroke get their own outline/halo for contrast,
 // so the zone only needs to lift the image's brightness a little.
-function paintPhotoWithWritingZone(ctx, W, H, baseColor, img, zoneFn = getWritingPad, zoneOpacity = 0.6) {
+function paintPhotoWithWritingZone(ctx, W, H, baseColor, img, zoneFn = getWritingPad, zoneOpacity = 0.6, maxCrop) {
   ctx.fillStyle = baseColor;
   ctx.fillRect(0, 0, W, H);
 
   if (img.complete && img.naturalWidth) {
-    const scale = coverScaleCapped(W, H, img.naturalWidth, img.naturalHeight);
+    const scale = coverScaleCapped(W, H, img.naturalWidth, img.naturalHeight, maxCrop);
     const iw = img.naturalWidth * scale, ih = img.naturalHeight * scale;
     ctx.save();
     ctx.filter = 'saturate(1.15) contrast(1.08) brightness(1.02)';
@@ -1532,7 +1532,10 @@ const WORLDS = {
     writingPad:        getWritingPad,
 
     paintBackground(ctx, W, H) {
-      paintPhotoWithWritingZone(ctx, W, H, '#ECEFF1', ASSETS.racingBg);
+      // maxCrop 0: the cars sit close to the left/right edges of this
+      // photo, so fit it without cropping ("contain") rather than risk
+      // slicing them off on narrow screens.
+      paintPhotoWithWritingZone(ctx, W, H, '#ECEFF1', ASSETS.racingBg, getWritingPad, 0.6, 0);
     },
 
     drawStroke(ctx, x1, y1, x2, y2) {
@@ -1574,7 +1577,10 @@ const WORLDS = {
     writingPad:        getWritingPad,
 
     paintBackground(ctx, W, H) {
-      paintPhotoWithWritingZone(ctx, W, H, '#FFF8E1', ASSETS.constructionBg);
+      // maxCrop 0: the bulldozer, cranes, sign and cones sit near the
+      // edges of this photo, so fit it without cropping ("contain")
+      // rather than risk slicing them off on narrow screens.
+      paintPhotoWithWritingZone(ctx, W, H, '#FFF8E1', ASSETS.constructionBg, getWritingPad, 0.6, 0);
     },
 
     drawStroke(ctx, x1, y1, x2, y2) {
@@ -1616,7 +1622,10 @@ const WORLDS = {
     writingPad:        getWritingPad,
 
     paintBackground(ctx, W, H) {
-      paintPhotoWithWritingZone(ctx, W, H, '#F3E5F5', ASSETS.candyBg);
+      // maxCrop 0: the candies and sweet frame fill right up to the
+      // edges of this photo, so fit it without cropping ("contain")
+      // rather than risk slicing them off on narrow screens.
+      paintPhotoWithWritingZone(ctx, W, H, '#F3E5F5', ASSETS.candyBg, getWritingPad, 0.6, 0);
     },
 
     drawStroke(ctx, x1, y1, x2, y2) {
