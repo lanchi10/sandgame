@@ -1928,10 +1928,7 @@ const WORLDS = {
     writingPad:        getWritingPad,
 
     paintBackground(ctx, W, H) {
-      // fire2.png is a wide (16:9) dramatic action shot, much wider than
-      // the 4:3 photos used elsewhere — a higher maxCrop keeps the truck
-      // large and centred instead of leaving big empty bars top/bottom.
-      paintPhotoWithWritingZone(ctx, W, H, '#0A0806', ASSETS.fireWonderBg, getWritingPad, 0.55, 0.30);
+      paintPhotoWithWritingZone(ctx, W, H, '#0A0806', ASSETS.fireWonderBg, getWritingPad, 0.55);
     },
 
     drawStroke(ctx, x1, y1, x2, y2) {
