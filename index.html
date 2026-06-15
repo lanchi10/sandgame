@@ -85,6 +85,10 @@
       background: linear-gradient(to bottom,
         #F3E5F5 0%, #FCE4EC 45%, #FFF9C4 100%);
     }
+    body.world-fireFlame {
+      background: linear-gradient(to bottom,
+        #3D0E02 0%, #7A1F0A 45%, #B8430E 100%);
+    }
 
     /* ── High-contrast text panel (works on every background) ─── */
     .panel {
@@ -255,6 +259,9 @@
     body.world-candyPhoto #canvasWrap {
       box-shadow: 0 0 0 4px #FFFFFF, 0 0 0 7px #FF80AB, 0 10px 24px rgba(220,80,140,0.22);
     }
+    body.world-fireFlame #canvasWrap {
+      box-shadow: 0 0 0 4px #FFFFFF, 0 0 0 7px #FF7043, 0 10px 26px rgba(180,40,10,0.35);
+    }
 
     #mainCanvas {
       display: block;
@@ -328,6 +335,7 @@
       <button class="choice-btn world-btn"        data-world="racingPhoto">🏎️ מכוניות מרוץ</button>
       <button class="choice-btn world-btn"        data-world="constructionPhoto">🚜 אתר בנייה</button>
       <button class="choice-btn world-btn"        data-world="candyPhoto">🍭 עולם הממתקים</button>
+      <button class="choice-btn world-btn"        data-world="fireFlame">🔥 אש</button>
     </div>
 
     <button id="startBtn">▶ התחלה</button>
@@ -634,6 +642,35 @@ function drawLollipop(ctx, cx, cy, r) {
   ctx.restore();
 }
 
+// A calm, rounded flame (three nested teardrop layers: red-orange,
+// orange-yellow, pale-yellow core) centred at (cx, cy) with overall
+// "size" r — used for the fire world's gentle cleanup pass. No strobing;
+// any flicker is left to the caller via small changes to r between frames.
+function drawFlame(ctx, cx, cy, r) {
+  ctx.save();
+  ctx.translate(cx, cy);
+
+  function lobe(scale, colorStops) {
+    ctx.beginPath();
+    ctx.moveTo(0, r);
+    ctx.quadraticCurveTo(-r * 0.85 * scale,  r * 0.30, -r * 0.42 * scale, -r * 0.30 * scale);
+    ctx.quadraticCurveTo(-r * 0.55 * scale, -r * 0.80 * scale, 0, -r * 1.05 * scale);
+    ctx.quadraticCurveTo( r * 0.55 * scale, -r * 0.80 * scale,  r * 0.42 * scale, -r * 0.30 * scale);
+    ctx.quadraticCurveTo( r * 0.85 * scale,  r * 0.30, 0, r);
+    ctx.closePath();
+    const g = ctx.createLinearGradient(0, r, 0, -r * 1.05 * scale);
+    colorStops.forEach(([stop, color]) => g.addColorStop(stop, color));
+    ctx.fillStyle = g;
+    ctx.fill();
+  }
+
+  lobe(1.00, [[0, '#D32F2F'], [0.45, '#FF7043'], [0.8, '#FFB300'], [1, '#FFE082']]);
+  lobe(0.62, [[0, '#FF7043'], [0.5, '#FFB300'], [1, '#FFF59D']]);
+  lobe(0.32, [[0, '#FFCA28'], [1, '#FFFDE7']]);
+
+  ctx.restore();
+}
+
 /* ============================================================
    JUNGLE HELPERS  (friendly tree + dino)
    ============================================================ */
@@ -731,6 +768,7 @@ const ASSETS = {
   racingBg:       loadImg('images/mm.png'),
   constructionBg: loadImg('images/wr.png'),
   candyBg:        loadImg('images/sw.png'),
+  flameBg:        loadImg('images/esh.png'),
 };
 function drawCoverImage(ctx, W, H, img, alpha) {
   if (!img.complete || !img.naturalWidth) return;
@@ -1646,6 +1684,49 @@ const WORLDS = {
         }
         const bob = Math.sin(raw * Math.PI * 6) * candyR * 0.08;
         drawLollipop(ctx, cx, H / 2 + bob, candyR);
+        raw < 1 ? requestAnimationFrame(frame) : onDone();
+      })(performance.now());
+    },
+  },
+
+  /* ─── 🔥 Fire flame (photo + soft writing zone) ──────────────── */
+  fireFlame: {
+    rewardLabel:       '🔥 הלהבה מנקה',
+    rewardBtnGradient: 'linear-gradient(135deg,#D32F2F,#FF7043 55%,#FFD54F)',
+    guideStrokeColor:  '#FFE9B0',
+    guideShadowColor:  'rgba(50,15,0,0.78)',
+    guideLineWidth:    16,
+    guideOpacity:      0.78,
+    childStrokeColor:  '#22E5FF',
+    childOutlineColor: '#062A52',
+    childShadowColor:  'rgba(224,250,255,0.65)',
+    childLineWidth:    15,
+    msgReward:         'הלהבה עוברת בעדינות ומנקה',
+    msgClear:          'ננסה שוב ברוגע',
+    writingPad:        getWritingPad,
+
+    paintBackground(ctx, W, H) {
+      paintPhotoWithWritingZone(ctx, W, H, '#3D0E02', ASSETS.flameBg, getWritingPad, 0.45);
+    },
+
+    drawStroke(ctx, x1, y1, x2, y2) {
+      drawChildStroke(ctx, x1, y1, x2, y2);
+    },
+
+    rewardAnimation(ctx, snap, W, H, onDone, gen) {
+      const DUR = 2400, t0 = performance.now();
+      const flameR = Math.min(W, H) * 0.18;
+      (function frame(now) {
+        if (gen !== animGen) return;
+        const raw = Math.min((now - t0) / DUR, 1);
+        const cx  = -flameR * 1.4 + raw * (W + flameR * 2.8);
+        ctx.putImageData(snap, 0, 0);
+        const cleanW = Math.max(0, Math.floor(cx));
+        if (cleanW > 0 && baseSnap) {
+          ctx.putImageData(baseSnap, 0, 0, 0, 0, cleanW, H);
+        }
+        const flicker = Math.sin(now * 0.014) * flameR * 0.06;
+        drawFlame(ctx, cx, H / 2 + flameR * 0.1, flameR + flicker);
         raw < 1 ? requestAnimationFrame(frame) : onDone();
       })(performance.now());
     },
