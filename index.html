@@ -101,6 +101,10 @@
       background: linear-gradient(to bottom,
         #1A0000 0%, #6E1500 45%, #FF7043 100%);
     }
+    body.world-magneticGalaxy {
+      background: linear-gradient(to bottom,
+        #05021A 0%, #1A0B3D 45%, #2E1A5C 100%);
+    }
 
     /* ── High-contrast text panel (works on every background) ─── */
     .panel {
@@ -283,6 +287,9 @@
     body.world-fireWonder #canvasWrap {
       box-shadow: 0 0 0 4px #FFFFFF, 0 0 0 7px #D32F2F, 0 10px 28px rgba(180,20,10,0.35);
     }
+    body.world-magneticGalaxy #canvasWrap {
+      box-shadow: 0 0 0 4px #FFFFFF, 0 0 0 7px #7E57C2, 0 10px 30px rgba(126,87,194,0.40);
+    }
 
     #mainCanvas {
       display: block;
@@ -360,6 +367,7 @@
       <button class="choice-btn world-btn"        data-world="goldKingdom">🌟 ממלכת הזהב</button>
       <button class="choice-btn world-btn"        data-world="fireWriting">🔥 כתובת אש</button>
       <button class="choice-btn world-btn"        data-world="fireWonder">🚒 כבאית הפלא</button>
+      <button class="choice-btn world-btn"        data-world="magneticGalaxy">🌌 שער הגלקסיה המגנטית</button>
     </div>
 
     <button id="startBtn">▶ התחלה</button>
@@ -602,6 +610,21 @@ function drawGoldOrb(ctx, cx, cy, r) {
   ctx.restore();
 }
 
+// A soft vertical "wave of light" — a glowing band (horizontal gradient
+// turquoise -> white -> gold, fully transparent at both edges) spanning
+// the canvas height, centred at cx with half-width bandW — the calm
+// pulse used by the magnetic-galaxy gateway's cleanup animation.
+function drawLightWave(ctx, cx, H, bandW) {
+  ctx.save();
+  const g = ctx.createLinearGradient(cx - bandW, 0, cx + bandW, 0);
+  g.addColorStop(0,    'rgba(38,198,218,0)');
+  g.addColorStop(0.5,  'rgba(255,255,255,0.85)');
+  g.addColorStop(1,    'rgba(255,213,79,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(cx - bandW, 0, bandW * 2, H);
+  ctx.restore();
+}
+
 // A small, friendly race car (body + cabin + spoiler + racing stripe +
 // wheels), centred at (cx, cy) with overall "size" r — the calm
 // "race car" cleanup for the racing world.
@@ -836,6 +859,7 @@ const ASSETS = {
   goldBg:         loadImg('images/gold.png'),
   fireWritingBg:  loadImg('images/fire.png'),
   fireWonderBg:   loadImg('images/fire2.png'),
+  galaxyBg:       loadImg('images/or.png'),
 };
 function drawCoverImage(ctx, W, H, img, alpha) {
   if (!img.complete || !img.naturalWidth) return;
@@ -1952,6 +1976,61 @@ const WORLDS = {
         }
         const bob = Math.sin(raw * Math.PI * 6) * truckR * 0.05;
         drawFireTruck(ctx, cx, H / 2 + bob, truckR);
+        raw < 1 ? requestAnimationFrame(frame) : onDone();
+      })(performance.now());
+    },
+  },
+
+  /* ─── 🌌 Magnetic galaxy gateway (photo + soft writing zone) ─── */
+  magneticGalaxy: {
+    rewardLabel:       '✨ גל אור מנקה',
+    rewardBtnGradient: 'linear-gradient(135deg,#1A0B3D,#26C6DA 55%,#FFD54F)',
+    guideStrokeColor:  '#FFD54F',
+    guideShadowColor:  'rgba(60,20,100,0.70)',
+    guideLineWidth:    16,
+    guideOpacity:      0.62,
+    childStrokeColor:  '#5CFFEE',
+    childOutlineColor: '#2A0E61',
+    childShadowColor:  'rgba(180,255,250,0.70)',
+    childLineWidth:    16,
+    msgReward:         'גל האור עובר בעדינות ומנקה',
+    msgClear:          'ננסה שוב ברוגע',
+    writingPad:        getWritingPad,
+
+    paintBackground(ctx, W, H) {
+      paintPhotoWithWritingZone(ctx, W, H, '#0A0428', ASSETS.galaxyBg, getWritingPad, 0.5);
+    },
+
+    drawStroke(ctx, x1, y1, x2, y2) {
+      drawChildStroke(ctx, x1, y1, x2, y2);
+    },
+
+    rewardAnimation(ctx, snap, W, H, onDone, gen) {
+      const DUR = 2600, t0 = performance.now();
+      const bandW = Math.min(W, H) * 0.12;
+      const sparkles = Array.from({ length: 12 }, () => ({
+        dx:    (Math.random() - 0.5) * bandW * 2,
+        dy:    (Math.random() - 0.5) * H * 0.7,
+        r:     1.5 + Math.random() * 2.5,
+        color: ['#80F4FF', '#FFFFFF', '#FFD54F', '#B39DDB'][Math.floor(Math.random() * 4)],
+        phase: Math.random() * Math.PI * 2,
+      }));
+      (function frame(now) {
+        if (gen !== animGen) return;
+        const raw = Math.min((now - t0) / DUR, 1);
+        const cx  = -bandW * 1.4 + raw * (W + bandW * 2.8);
+        ctx.putImageData(snap, 0, 0);
+        const cleanW = Math.max(0, Math.floor(cx));
+        if (cleanW > 0 && baseSnap) {
+          ctx.putImageData(baseSnap, 0, 0, 0, 0, cleanW, H);
+        }
+        drawLightWave(ctx, cx, H, bandW);
+        sparkles.forEach(s => {
+          const tw = 0.5 + 0.5 * Math.sin(now * 0.006 + s.phase);
+          ctx.globalAlpha = 0.4 + 0.5 * tw;
+          drawSparkleStar(ctx, cx + s.dx, H / 2 + s.dy, s.r * 1.6, s.color);
+        });
+        ctx.globalAlpha = 1;
         raw < 1 ? requestAnimationFrame(frame) : onDone();
       })(performance.now());
     },
