@@ -93,6 +93,10 @@
       background: linear-gradient(to bottom,
         #5D4200 0%, #C8941A 45%, #FFE9A8 100%);
     }
+    body.world-fireWriting {
+      background: linear-gradient(to bottom,
+        #000000 0%, #1A0A05 45%, #4A1500 100%);
+    }
 
     /* ── High-contrast text panel (works on every background) ─── */
     .panel {
@@ -269,6 +273,9 @@
     body.world-goldKingdom #canvasWrap {
       box-shadow: 0 0 0 4px #FFFFFF, 0 0 0 7px #FFC107, 0 10px 26px rgba(180,140,0,0.32);
     }
+    body.world-fireWriting #canvasWrap {
+      box-shadow: 0 0 0 4px #1A1A1A, 0 0 0 7px #FF6F00, 0 10px 30px rgba(255,87,34,0.35);
+    }
 
     #mainCanvas {
       display: block;
@@ -344,6 +351,7 @@
       <button class="choice-btn world-btn"        data-world="candyPhoto">🍭 עולם הממתקים</button>
       <button class="choice-btn world-btn"        data-world="fireFlame">🔥 אש</button>
       <button class="choice-btn world-btn"        data-world="goldKingdom">🌟 ממלכת הזהב</button>
+      <button class="choice-btn world-btn"        data-world="fireWriting">🔥 כתובת אש</button>
     </div>
 
     <button id="startBtn">▶ התחלה</button>
@@ -703,6 +711,22 @@ function drawFlame(ctx, cx, cy, r) {
   ctx.restore();
 }
 
+// A small glowing ember (soft radial glow fading to transparent),
+// centred at (cx, cy) with overall "size" r and a given core color —
+// used for the gentle ember trail in the fire-writing world's cleanup
+// animation. No hard edges, so it never looks like an aggressive flash.
+function drawEmber(ctx, cx, cy, r, color) {
+  ctx.save();
+  const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+  g.addColorStop(0, color);
+  g.addColorStop(1, 'rgba(255,87,34,0)');
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
 /* ============================================================
    JUNGLE HELPERS  (friendly tree + dino)
    ============================================================ */
@@ -802,6 +826,7 @@ const ASSETS = {
   candyBg:        loadImg('images/sw.png'),
   flameBg:        loadImg('images/esh.png'),
   goldBg:         loadImg('images/gold.png'),
+  fireWritingBg:  loadImg('images/fire.png'),
 };
 function drawCoverImage(ctx, W, H, img, alpha) {
   if (!img.complete || !img.naturalWidth) return;
@@ -1816,6 +1841,62 @@ const WORLDS = {
         });
         ctx.globalAlpha = 1;
         drawGoldOrb(ctx, cx, H / 2 + bob, orbR);
+        raw < 1 ? requestAnimationFrame(frame) : onDone();
+      })(performance.now());
+    },
+  },
+
+  /* ─── 🔥 Fire writing (dark photo + soft writing zone) ──────── */
+  fireWriting: {
+    rewardLabel:       '🔥 אש חדשה',
+    rewardBtnGradient: 'linear-gradient(135deg,#1A0A00,#FF6F00 55%,#FFD54F)',
+    guideStrokeColor:  '#FFA000',
+    guideShadowColor:  'rgba(255,87,34,0.55)',
+    guideLineWidth:    15,
+    guideOpacity:      0.60,
+    childStrokeColor:  '#FFF176',
+    childOutlineColor: '#FF3D00',
+    childShadowColor:  'rgba(255,171,64,0.75)',
+    childLineWidth:    16,
+    msgReward:         'האש החדשה מתעוררת בעדינות',
+    msgClear:          'ננסה שוב ברוגע',
+    writingPad:        getWritingPad,
+
+    paintBackground(ctx, W, H) {
+      paintPhotoWithWritingZone(ctx, W, H, '#0B0604', ASSETS.fireWritingBg, getWritingPad, 0.35);
+    },
+
+    drawStroke(ctx, x1, y1, x2, y2) {
+      drawChildStroke(ctx, x1, y1, x2, y2);
+    },
+
+    rewardAnimation(ctx, snap, W, H, onDone, gen) {
+      const DUR = 2400, t0 = performance.now();
+      const flameR = Math.min(W, H) * 0.17;
+      const embers = Array.from({ length: 12 }, () => ({
+        dx:    (Math.random() - 0.5) * flameR * 0.7,
+        dy:    -Math.random() * flameR * 1.8,
+        r:     2 + Math.random() * 3,
+        color: ['#FFD54F', '#FF8A65', '#FFF59D', '#FF7043'][Math.floor(Math.random() * 4)],
+        phase: Math.random() * Math.PI * 2,
+      }));
+      (function frame(now) {
+        if (gen !== animGen) return;
+        const raw = Math.min((now - t0) / DUR, 1);
+        const cx  = -flameR * 1.4 + raw * (W + flameR * 2.8);
+        ctx.putImageData(snap, 0, 0);
+        const cleanW = Math.max(0, Math.floor(cx));
+        if (cleanW > 0 && baseSnap) {
+          ctx.putImageData(baseSnap, 0, 0, 0, 0, cleanW, H);
+        }
+        const flicker = Math.sin(now * 0.014) * flameR * 0.06;
+        embers.forEach(e => {
+          const tw = 0.5 + 0.5 * Math.sin(now * 0.008 + e.phase);
+          ctx.globalAlpha = 0.35 + 0.5 * tw;
+          drawEmber(ctx, cx - flameR * 0.8 + e.dx, H / 2 + flameR * 0.1 + e.dy * tw, e.r * 1.4, e.color);
+        });
+        ctx.globalAlpha = 1;
+        drawFlame(ctx, cx, H / 2 + flameR * 0.1, flameR + flicker);
         raw < 1 ? requestAnimationFrame(frame) : onDone();
       })(performance.now());
     },
