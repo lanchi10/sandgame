@@ -1854,10 +1854,10 @@ const WORLDS = {
     guideShadowColor:  'rgba(255,87,34,0.55)',
     guideLineWidth:    15,
     guideOpacity:      0.60,
-    childStrokeColor:  '#FFF176',
-    childOutlineColor: '#FF3D00',
-    childShadowColor:  'rgba(255,171,64,0.75)',
-    childLineWidth:    16,
+    childStrokeColor:  '#FFC400',
+    childOutlineColor: '#3E0A00',
+    childShadowColor:  'rgba(255,109,0,0.65)',
+    childLineWidth:    17,
     msgReward:         'האש החדשה מתעוררת בעדינות',
     msgClear:          'ננסה שוב ברוגע',
     writingPad:        getWritingPad,
@@ -1867,7 +1867,7 @@ const WORLDS = {
     },
 
     drawStroke(ctx, x1, y1, x2, y2) {
-      drawChildStroke(ctx, x1, y1, x2, y2);
+      drawFireChildStroke(ctx, x1, y1, x2, y2);
     },
 
     rewardAnimation(ctx, snap, W, H, onDone, gen) {
@@ -1962,6 +1962,31 @@ function drawChildStroke(ctx, x1, y1, x2, y2) {
   ctx.strokeStyle = w.childOutlineColor; ctx.lineWidth = w.childLineWidth + 6; ctx.stroke();
   ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
   ctx.strokeStyle = w.childStrokeColor; ctx.lineWidth = w.childLineWidth; ctx.stroke();
+  ctx.restore();
+}
+
+// "Writing with real fire" — like drawChildStroke, but the core of the
+// line is painted with a vertical fire gradient (deep red near the
+// bottom of the canvas, through orange and gold, to a glowing white-hot
+// tip near the top) instead of one flat color, so the child's own line
+// reads as a living flame rather than a colored pen. Used by the
+// fireWriting world only.
+function drawFireChildStroke(ctx, x1, y1, x2, y2) {
+  const w = W();
+  const cH = ctx.canvas.height;
+  ctx.save();
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+  ctx.strokeStyle = w.childShadowColor; ctx.lineWidth = w.childLineWidth + 16; ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+  ctx.strokeStyle = w.childOutlineColor; ctx.lineWidth = w.childLineWidth + 6; ctx.stroke();
+  const flame = ctx.createLinearGradient(0, cH, 0, 0);
+  flame.addColorStop(0,    '#B71C1C');
+  flame.addColorStop(0.35, '#FF6D00');
+  flame.addColorStop(0.65, '#FFC400');
+  flame.addColorStop(1,    '#FFFDE7');
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+  ctx.strokeStyle = flame; ctx.lineWidth = w.childLineWidth; ctx.stroke();
   ctx.restore();
 }
 
