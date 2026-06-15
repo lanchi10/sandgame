@@ -1928,7 +1928,10 @@ const WORLDS = {
     writingPad:        getWritingPad,
 
     paintBackground(ctx, W, H) {
-      paintPhotoWithWritingZone(ctx, W, H, '#0A0806', ASSETS.fireWonderBg, getWritingPad, 0.55);
+      // maxCrop 0: the truck and both firefighters span almost the full
+      // width of fire2.png, so fit it without cropping ("contain") to
+      // make sure the whole scene stays visible on narrow/mobile canvases.
+      paintPhotoWithWritingZone(ctx, W, H, '#0A0806', ASSETS.fireWonderBg, getWritingPad, 0.55, 0);
     },
 
     drawStroke(ctx, x1, y1, x2, y2) {
