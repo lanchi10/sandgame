@@ -140,7 +140,7 @@
       letter-spacing: 0.03em;
     }
 
-    #typeBar, #worldBar {
+    #typeBar, #worldBar, #thicknessBar {
       display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
     }
     .choice-btn {
@@ -384,6 +384,13 @@
       <button class="choice-btn world-btn"        data-world="magneticGalaxy">🌌 שער הגלקסיה המגנטית</button>
       <button class="choice-btn world-btn"        data-world="diamondKingdom">💎 ממלכת היהלומים</button>
       <button class="choice-btn world-btn"        data-world="magicGarden">🌸 הגן הקסום</button>
+    </div>
+
+    <p class="sectionLabel panel">עובי קו</p>
+    <div id="thicknessBar">
+      <button class="choice-btn thickness-btn" data-thickness="thin">✏️ דק</button>
+      <button class="choice-btn thickness-btn active" data-thickness="normal">🖍️ רגיל</button>
+      <button class="choice-btn thickness-btn" data-thickness="thick">🖌️ עבה</button>
     </div>
 
     <button id="startBtn">▶ התחלה</button>
@@ -2365,6 +2372,7 @@ let msgTimer     = null;
 let animGen      = 0;   // bumped on "back to start" to invalidate in-flight animations
 let hasUserMark  = false; // true once the child has started drawing since the last buildBase/clear
 let galaxyIdleRAF = null; // rAF handle for the magneticGalaxy idle "breathing" loop
+let lineThicknessMode = 'normal'; // 'thin' | 'normal' | 'thick'
 
 const W = () => WORLDS[worldId];
 
@@ -2426,16 +2434,21 @@ function startGalaxyIdle() {
 // Draws one segment of the child's own stroke as a solid, vivid line
 // with a dark outline and a soft outer glow, so it reads as the most
 // alive element on screen and stays clearly distinct from the guide.
+function strokeMultiplier() {
+  return lineThicknessMode === 'thin' ? 0.65 : lineThicknessMode === 'thick' ? 1.35 : 1.0;
+}
+
 function drawChildStroke(ctx, x1, y1, x2, y2) {
   const w = W();
+  const lw = w.childLineWidth * strokeMultiplier();
   ctx.save();
   ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
-  ctx.strokeStyle = w.childShadowColor; ctx.lineWidth = w.childLineWidth + 14; ctx.stroke();
+  ctx.strokeStyle = w.childShadowColor; ctx.lineWidth = lw + 14; ctx.stroke();
   ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
-  ctx.strokeStyle = w.childOutlineColor; ctx.lineWidth = w.childLineWidth + 6; ctx.stroke();
+  ctx.strokeStyle = w.childOutlineColor; ctx.lineWidth = lw + 6; ctx.stroke();
   ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
-  ctx.strokeStyle = w.childStrokeColor; ctx.lineWidth = w.childLineWidth; ctx.stroke();
+  ctx.strokeStyle = w.childStrokeColor; ctx.lineWidth = lw; ctx.stroke();
   ctx.restore();
 }
 
@@ -2447,20 +2460,21 @@ function drawChildStroke(ctx, x1, y1, x2, y2) {
 // fireWriting world only.
 function drawFireChildStroke(ctx, x1, y1, x2, y2) {
   const w = W();
+  const lw = w.childLineWidth * strokeMultiplier();
   const cH = ctx.canvas.height;
   ctx.save();
   ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
-  ctx.strokeStyle = w.childShadowColor; ctx.lineWidth = w.childLineWidth + 16; ctx.stroke();
+  ctx.strokeStyle = w.childShadowColor; ctx.lineWidth = lw + 16; ctx.stroke();
   ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
-  ctx.strokeStyle = w.childOutlineColor; ctx.lineWidth = w.childLineWidth + 6; ctx.stroke();
+  ctx.strokeStyle = w.childOutlineColor; ctx.lineWidth = lw + 6; ctx.stroke();
   const flame = ctx.createLinearGradient(0, cH, 0, 0);
   flame.addColorStop(0,    '#B71C1C');
   flame.addColorStop(0.35, '#FF6D00');
   flame.addColorStop(0.65, '#FFC400');
   flame.addColorStop(1,    '#FFFDE7');
   ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
-  ctx.strokeStyle = flame; ctx.lineWidth = w.childLineWidth; ctx.stroke();
+  ctx.strokeStyle = flame; ctx.lineWidth = lw; ctx.stroke();
   ctx.restore();
 }
 
@@ -2755,6 +2769,12 @@ function switchType(newType) {
   document.getElementById('wordInputWrap').classList.toggle('hidden', newType !== 'word');
 }
 
+function switchThickness(mode) {
+  lineThicknessMode = mode;
+  document.querySelectorAll('.thickness-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.thickness === mode));
+}
+
 /* ============================================================
    START / PRACTICE SCREEN FLOW
    ============================================================ */
@@ -2851,6 +2871,8 @@ document.querySelectorAll('.world-btn').forEach(b =>
   b.addEventListener('click', () => switchWorld(b.dataset.world)));
 document.querySelectorAll('.type-btn').forEach(b =>
   b.addEventListener('click', () => switchType(b.dataset.type)));
+document.querySelectorAll('.thickness-btn').forEach(b =>
+  b.addEventListener('click', () => switchThickness(b.dataset.thickness)));
 
 window.addEventListener('resize', () => {
   if (!practiceScreenEl.classList.contains('hidden')) resize();
