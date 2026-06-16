@@ -101,10 +101,6 @@
       background: linear-gradient(to bottom,
         #1A0000 0%, #6E1500 45%, #FF7043 100%);
     }
-    body.world-magneticGalaxy {
-      background: linear-gradient(to bottom,
-        #05021A 0%, #1A0B3D 45%, #2E1A5C 100%);
-    }
     body.world-diamondKingdom {
       background: linear-gradient(to bottom,
         #F3E5FF 0%, #FFE0F0 45%, #E8F4FF 100%);
@@ -295,9 +291,6 @@
     body.world-fireWonder #canvasWrap {
       box-shadow: 0 0 0 4px #FFFFFF, 0 0 0 7px #D32F2F, 0 10px 28px rgba(180,20,10,0.35);
     }
-    body.world-magneticGalaxy #canvasWrap {
-      box-shadow: 0 0 0 4px #FFFFFF, 0 0 0 7px #7E57C2, 0 10px 30px rgba(126,87,194,0.40);
-    }
     body.world-diamondKingdom #canvasWrap {
       box-shadow: 0 0 0 4px #FFFFFF, 0 0 0 7px #CE93D8, 0 10px 28px rgba(180,100,220,0.32);
     }
@@ -381,7 +374,6 @@
       <button class="choice-btn world-btn"        data-world="goldKingdom">🌟 ממלכת הזהב</button>
       <button class="choice-btn world-btn"        data-world="fireWriting">🔥 כתובת אש</button>
       <button class="choice-btn world-btn"        data-world="fireWonder">🚒 כבאית הפלא</button>
-      <button class="choice-btn world-btn"        data-world="magneticGalaxy">🌌 שער הגלקסיה המגנטית</button>
       <button class="choice-btn world-btn"        data-world="diamondKingdom">💎 ממלכת היהלומים</button>
       <button class="choice-btn world-btn"        data-world="magicGarden">🌸 הגן הקסום</button>
     </div>
@@ -718,96 +710,6 @@ function drawDiamondGem(ctx, cx, cy, r, color) {
 // turquoise -> white -> gold, fully transparent at both edges) spanning
 // the canvas height, centred at cx with half-width bandW — the calm
 // pulse used by the magnetic-galaxy gateway's cleanup animation.
-function drawLightWave(ctx, cx, H, bandW) {
-  ctx.save();
-  const g = ctx.createLinearGradient(cx - bandW, 0, cx + bandW, 0);
-  g.addColorStop(0,    'rgba(38,198,218,0)');
-  g.addColorStop(0.5,  'rgba(255,255,255,0.85)');
-  g.addColorStop(1,    'rgba(255,213,79,0)');
-  ctx.fillStyle = g;
-  ctx.fillRect(cx - bandW, 0, bandW * 2, H);
-  ctx.restore();
-}
-
-// A very gentle "breathing" glow over the magnetic-galaxy gateway's
-// writing zone — brightness swings by well under 10% on a slow ~3s
-// cycle, drawn additively so it never hides whatever is underneath.
-function drawCrystalBreathingGlow(ctx, W, H, now) {
-  const pad = getWritingPad(W, H);
-  const cx  = pad.x + pad.w / 2, cy = pad.y + pad.h / 2;
-  const r   = Math.min(pad.w, pad.h) * 0.6;
-  const breathe = 0.5 + 0.5 * Math.sin((now / 3000) * Math.PI * 2);
-  const alpha = 0.03 + breathe * 0.05;
-  ctx.save();
-  ctx.globalCompositeOperation = 'lighter';
-  const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
-  g.addColorStop(0,   `rgba(255,235,180,${alpha})`);
-  g.addColorStop(0.5, `rgba(120,240,255,${alpha * 0.6})`);
-  g.addColorStop(1,   'rgba(120,240,255,0)');
-  ctx.fillStyle = g;
-  ctx.beginPath();
-  ctx.arc(cx, cy, r, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
-}
-
-// A gentle "ripple from the centre" for the gateway's joyful clear — a
-// short, soft radial glow at the centre of the writing zone, plus a thin
-// ring of light that ripples outward and fades. No flicker, no sparkles.
-// progress runs 0 -> 1 over ~0.8-1.0s.
-function drawCrystalSuccessRipple(ctx, W, H, progress) {
-  if (progress <= 0) return;
-  const pad = getWritingPad(W, H);
-  const cx  = pad.x + pad.w / 2, cy = pad.y + pad.h / 2;
-  ctx.save();
-  ctx.globalCompositeOperation = 'lighter';
-
-  const glowIn  = Math.min(progress / 0.3, 1);
-  const glowOut = progress > 0.55 ? Math.max(0, 1 - (progress - 0.55) / 0.45) : 1;
-  const glowAlpha = 0.28 * glowIn * Math.max(glowOut, 0.15);
-  const glowR = Math.min(W, H) * 0.20;
-  const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowR);
-  glow.addColorStop(0,    `rgba(255,255,240,${glowAlpha})`);
-  glow.addColorStop(0.45, `rgba(255,215,120,${glowAlpha * 0.75})`);
-  glow.addColorStop(1,    'rgba(120,240,255,0)');
-  ctx.fillStyle = glow;
-  ctx.beginPath();
-  ctx.arc(cx, cy, glowR, 0, Math.PI * 2);
-  ctx.fill();
-
-  if (progress > 0.08) {
-    const ringT = Math.min((progress - 0.08) / 0.92, 1);
-    const ringR = Math.min(W, H) * 0.48 * ringT;
-    ctx.strokeStyle = `rgba(190,250,255,${0.28 * (1 - ringT)})`;
-    ctx.lineWidth   = Math.max(1, 6 * (1 - ringT));
-    ctx.beginPath();
-    ctx.arc(cx, cy, ringR, 0, Math.PI * 2);
-    ctx.stroke();
-  }
-  ctx.restore();
-}
-
-// A burst of small sparkles drifting gently outward from the gateway's
-// centre and fading, timed against the same 0->1 progress as the ripple.
-function drawCrystalSparkles(ctx, W, H, progress, sparkles) {
-  if (progress <= 0) return;
-  const pad = getWritingPad(W, H);
-  const cx  = pad.x + pad.w / 2, cy = pad.y + pad.h / 2;
-  ctx.save();
-  ctx.globalCompositeOperation = 'lighter';
-  sparkles.forEach(s => {
-    const t = Math.min(Math.max((progress - s.delay) / (1 - s.delay), 0), 1);
-    if (t <= 0) return;
-    const alpha = (1 - t) * 0.85;
-    if (alpha <= 0) return;
-    const dist = s.dist * t;
-    ctx.globalAlpha = alpha;
-    drawSparkleStar(ctx, cx + Math.cos(s.angle) * dist, cy + Math.sin(s.angle) * dist, s.r, s.color);
-  });
-  ctx.globalAlpha = 1;
-  ctx.restore();
-}
-
 // A small, friendly race car (body + cabin + spoiler + racing stripe +
 // wheels), centred at (cx, cy) with overall "size" r — the calm
 // "race car" cleanup for the racing world.
@@ -1042,7 +944,6 @@ const ASSETS = {
   goldBg:         loadImg('images/gold.png'),
   fireWritingBg:  loadImg('images/fire.png'),
   fireWonderBg:   loadImg('images/fire2.png'),
-  galaxyBg:       loadImg('images/or.png'),
   diamondBg:      loadImg('images/dimond.png'),
   ganBg:          loadImg('images/gan.png'),
 };
@@ -2231,68 +2132,6 @@ const WORLDS = {
   },
 
   /* ─── 🌌 Magnetic galaxy gateway (photo + soft writing zone) ─── */
-  magneticGalaxy: {
-    rewardLabel:       '✨ גל אור מנקה',
-    rewardBtnGradient: 'linear-gradient(135deg,#1A0B3D,#26C6DA 55%,#FFD54F)',
-    guideStrokeColor:  '#FFD54F',
-    guideShadowColor:  'rgba(60,20,100,0.70)',
-    guideLineWidth:    16,
-    guideOpacity:      0.62,
-    childStrokeColor:  '#5CFFEE',
-    childOutlineColor: '#2A0E61',
-    childShadowColor:  'rgba(180,255,250,0.70)',
-    childLineWidth:    16,
-    msgReward:         'גל האור עובר בעדינות ומנקה',
-    msgClear:          'ננסה שוב ברוגע',
-    writingPad:        getWritingPad,
-
-    paintBackground(ctx, W, H) {
-      paintPhotoWithWritingZone(ctx, W, H, '#0A0428', ASSETS.galaxyBg, getWritingPad, 0.5);
-    },
-
-    drawStroke(ctx, x1, y1, x2, y2) {
-      drawChildStroke(ctx, x1, y1, x2, y2);
-    },
-
-    rewardAnimation(ctx, snap, W, H, onDone, gen) {
-      // The light-wave sweep is the basic joyful clear (kept as-is). On
-      // top of it, a single gentle ripple from the centre of the gateway
-      // — short radial glow + soft outward ring, ~0.9s, no flicker, no
-      // extra sparkles (commit "Add simple galaxy reward ripple").
-      const DUR = 2600, RIPPLE_DUR = 900, t0 = performance.now();
-      const bandW = Math.min(W, H) * 0.12;
-      const sparkles = Array.from({ length: 12 }, () => ({
-        dx:    (Math.random() - 0.5) * bandW * 2,
-        dy:    (Math.random() - 0.5) * H * 0.7,
-        r:     1.5 + Math.random() * 2.5,
-        color: ['#80F4FF', '#FFFFFF', '#FFD54F', '#B39DDB'][Math.floor(Math.random() * 4)],
-        phase: Math.random() * Math.PI * 2,
-      }));
-      (function frame(now) {
-        if (gen !== animGen) return;
-        const raw = Math.min((now - t0) / DUR, 1);
-        const cx  = -bandW * 1.4 + raw * (W + bandW * 2.8);
-        ctx.putImageData(snap, 0, 0);
-        const cleanW = Math.max(0, Math.floor(cx));
-        if (cleanW > 0 && baseSnap) {
-          ctx.putImageData(baseSnap, 0, 0, 0, 0, cleanW, H);
-        }
-        drawLightWave(ctx, cx, H, bandW);
-        sparkles.forEach(s => {
-          const tw = 0.5 + 0.5 * Math.sin(now * 0.006 + s.phase);
-          ctx.globalAlpha = 0.4 + 0.5 * tw;
-          drawSparkleStar(ctx, cx + s.dx, H / 2 + s.dy, s.r * 1.6, s.color);
-        });
-        ctx.globalAlpha = 1;
-
-        const rippleProgress = Math.min((now - t0) / RIPPLE_DUR, 1);
-        drawCrystalSuccessRipple(ctx, W, H, rippleProgress);
-
-        raw < 1 ? requestAnimationFrame(frame) : onDone();
-      })(performance.now());
-    },
-  },
-
   /* ─── 🌸 Magic garden (photo + soft writing zone) ─────────── */
   magicGarden: {
     rewardLabel:       '💖 לב קסום מנקה',
@@ -2370,8 +2209,6 @@ let isAnimating  = false;
 let baseSnap     = null;
 let msgTimer     = null;
 let animGen      = 0;   // bumped on "back to start" to invalidate in-flight animations
-let hasUserMark  = false; // true once the child has started drawing since the last buildBase/clear
-let galaxyIdleRAF = null; // rAF handle for the magneticGalaxy idle "breathing" loop
 let lineThicknessMode = 'normal'; // 'thin' | 'normal' | 'thick'
 
 const W = () => WORLDS[worldId];
@@ -2398,44 +2235,17 @@ function buildBase() {
   W().paintBackground(ctx, cW, cH);
   if (itemVisible) paintGuide(cW, cH);
   baseSnap = ctx.getImageData(0, 0, cW, cH);
-  hasUserMark = false;
-  startGalaxyIdle();
 }
 
 function restoreBase() {
   baseSnap ? ctx.putImageData(baseSnap, 0, 0) : buildBase();
-  hasUserMark = false;
-  startGalaxyIdle();
-}
-
-// magneticGalaxy only: a very gentle, slow "breathing" glow over the
-// writing zone while the canvas is otherwise idle (nothing drawn yet
-// since the last buildBase/clear). Stops the moment the child starts
-// drawing or a reward animation runs, so it never erases their work.
-function startGalaxyIdle() {
-  // Temporarily disabled (commit 5fa0667 caused a visual glitch on the
-  // magneticGalaxy background) — idle breathing glow is off for now.
-  return;
-  // eslint-disable-next-line no-unreachable
-  if (galaxyIdleRAF || worldId !== 'magneticGalaxy') return;
-  const loop = (now) => {
-    if (worldId !== 'magneticGalaxy' || isAnimating || isDrawing || hasUserMark ||
-        !baseSnap || practiceScreenEl.classList.contains('hidden')) {
-      galaxyIdleRAF = null;
-      return;
-    }
-    ctx.putImageData(baseSnap, 0, 0);
-    drawCrystalBreathingGlow(ctx, canvas.width, canvas.height, now);
-    galaxyIdleRAF = requestAnimationFrame(loop);
-  };
-  galaxyIdleRAF = requestAnimationFrame(loop);
 }
 
 // Draws one segment of the child's own stroke as a solid, vivid line
 // with a dark outline and a soft outer glow, so it reads as the most
 // alive element on screen and stays clearly distinct from the guide.
 function strokeMultiplier() {
-  return lineThicknessMode === 'thin' ? 0.65 : lineThicknessMode === 'thick' ? 1.35 : 1.0;
+  return lineThicknessMode === 'thin' ? 0.45 : lineThicknessMode === 'thick' ? 1.80 : 1.0;
 }
 
 function drawChildStroke(ctx, x1, y1, x2, y2) {
@@ -2444,9 +2254,9 @@ function drawChildStroke(ctx, x1, y1, x2, y2) {
   ctx.save();
   ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
-  ctx.strokeStyle = w.childShadowColor; ctx.lineWidth = lw + 14; ctx.stroke();
+  ctx.strokeStyle = w.childShadowColor; ctx.lineWidth = Math.max(6, lw * 1.9); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
-  ctx.strokeStyle = w.childOutlineColor; ctx.lineWidth = lw + 6; ctx.stroke();
+  ctx.strokeStyle = w.childOutlineColor; ctx.lineWidth = Math.max(4, lw * 1.45); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
   ctx.strokeStyle = w.childStrokeColor; ctx.lineWidth = lw; ctx.stroke();
   ctx.restore();
@@ -2465,9 +2275,9 @@ function drawFireChildStroke(ctx, x1, y1, x2, y2) {
   ctx.save();
   ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
-  ctx.strokeStyle = w.childShadowColor; ctx.lineWidth = lw + 16; ctx.stroke();
+  ctx.strokeStyle = w.childShadowColor; ctx.lineWidth = Math.max(6, lw * 1.9); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
-  ctx.strokeStyle = w.childOutlineColor; ctx.lineWidth = lw + 6; ctx.stroke();
+  ctx.strokeStyle = w.childOutlineColor; ctx.lineWidth = Math.max(4, lw * 1.45); ctx.stroke();
   const flame = ctx.createLinearGradient(0, cH, 0, 0);
   flame.addColorStop(0,    '#B71C1C');
   flame.addColorStop(0.35, '#FF6D00');
@@ -2624,43 +2434,18 @@ function pointerDown(e) {
   e.preventDefault();
   canvas.setPointerCapture(e.pointerId);
   isDrawing = true;
-  hasUserMark = true;
   const p = coords(e);
   lastX = p.x; lastY = p.y;
   W().drawStroke(ctx, p.x, p.y, p.x + 0.1, p.y + 0.1);
-  // Touch ripple temporarily disabled (commit 5fa0667) — see startGalaxyIdle note.
-  // if (worldId === 'magneticGalaxy') spawnGalaxyTouchRipple(p.x, p.y);
 }
 function pointerMove(e) {
   if (!isDrawing || isAnimating) return;
   e.preventDefault();
-  hasUserMark = true;
   const p = coords(e);
   W().drawStroke(ctx, lastX, lastY, p.x, p.y);
   lastX = p.x; lastY = p.y;
 }
 
-// magneticGalaxy only: a short, soft expanding ring of light at the
-// child's touch point — drawn additively on top of whatever is already
-// on the canvas, so it never erases or slows down the drawing itself.
-function spawnGalaxyTouchRipple(x, y) {
-  const t0 = performance.now(), DUR = 450, maxR = 46;
-  (function frame(now) {
-    if (worldId !== 'magneticGalaxy' || isAnimating) return;
-    const t = Math.min((now - t0) / DUR, 1);
-    ctx.save();
-    ctx.globalCompositeOperation = 'lighter';
-    ctx.globalAlpha = 0.35 * (1 - t);
-    ctx.strokeStyle = '#9CFFEE';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(x, y, maxR * t, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.globalAlpha = 1;
-    ctx.restore();
-    if (t < 1) requestAnimationFrame(frame);
-  })(performance.now());
-}
 function pointerUp(e) {
   isDrawing = false;
   if (e && e.pointerId !== undefined && canvas.hasPointerCapture(e.pointerId)) {
@@ -2672,42 +2457,11 @@ function pointerUp(e) {
    REWARD  —  therapist-triggered animated clear
    ============================================================ */
 
-// magneticGalaxy only: a tiny, soft three-note chime played once the
-// reward is triggered (a user gesture, so AudioContext is allowed to
-// start). Wrapped in try/catch — if WebAudio is unavailable, just skip it.
-let galaxyAudioCtx = null;
-function playGalaxyChime() {
-  try {
-    if (!galaxyAudioCtx) galaxyAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const ac = galaxyAudioCtx;
-    if (ac.state === 'suspended') ac.resume();
-    const now = ac.currentTime;
-    [659.25, 880, 1318.5].forEach((freq, i) => {
-      const osc  = ac.createOscillator();
-      const gain = ac.createGain();
-      osc.type = 'sine';
-      osc.frequency.value = freq;
-      const start = now + i * 0.06;
-      gain.gain.setValueAtTime(0, start);
-      gain.gain.linearRampToValueAtTime(0.05, start + 0.05);
-      gain.gain.exponentialRampToValueAtTime(0.0001, start + 1.0);
-      osc.connect(gain).connect(ac.destination);
-      osc.start(start);
-      osc.stop(start + 1.05);
-    });
-  } catch (e) {
-    // WebAudio unavailable — silently skip the chime
-  }
-}
-
 function triggerReward() {
   if (isAnimating) return;
   isAnimating = true;
   isDrawing   = false;
   setButtons(false);
-
-  // WebAudio chime temporarily disabled (commit 5fa0667) — see startGalaxyIdle note.
-  // if (worldId === 'magneticGalaxy') playGalaxyChime();
 
   const msg = typeof W().msgRewardFn === 'function' ? W().msgRewardFn() : W().msgReward;
   showMsg(msg);
