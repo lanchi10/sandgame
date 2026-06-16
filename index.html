@@ -626,6 +626,55 @@ function drawGoldOrb(ctx, cx, cy, r) {
   ctx.restore();
 }
 
+// Shared bezier heart path reused by drawMagicHeart and drawTinyHeart.
+function _heartPath(ctx, cx, cy, r) {
+  ctx.beginPath();
+  ctx.moveTo(cx, cy + r * 0.80);
+  ctx.bezierCurveTo(cx - r * 0.55, cy + r * 0.30, cx - r * 1.20, cy - r * 0.40, cx - r * 0.50, cy - r * 0.80);
+  ctx.bezierCurveTo(cx - r * 0.15, cy - r * 1.05, cx, cy - r * 0.75, cx, cy - r * 0.50);
+  ctx.bezierCurveTo(cx, cy - r * 0.75, cx + r * 0.15, cy - r * 1.05, cx + r * 0.50, cy - r * 0.80);
+  ctx.bezierCurveTo(cx + r * 1.20, cy - r * 0.40, cx + r * 0.55, cy + r * 0.30, cx, cy + r * 0.80);
+  ctx.closePath();
+}
+
+// Glowing gradient heart — centrepiece of the magic-garden cleanup sweep.
+function drawMagicHeart(ctx, cx, cy, r) {
+  ctx.save();
+  const halo = ctx.createRadialGradient(cx, cy - r * 0.15, 0, cx, cy - r * 0.15, r * 2.1);
+  halo.addColorStop(0,   'rgba(255,105,180,0.52)');
+  halo.addColorStop(0.4, 'rgba(255,182,193,0.22)');
+  halo.addColorStop(1,   'rgba(255,182,193,0)');
+  ctx.fillStyle = halo;
+  ctx.beginPath();
+  ctx.arc(cx, cy - r * 0.15, r * 2.1, 0, Math.PI * 2);
+  ctx.fill();
+  const grad = ctx.createRadialGradient(cx - r * 0.2, cy - r * 0.3, 0, cx, cy, r * 1.1);
+  grad.addColorStop(0,    '#FFFFFF');
+  grad.addColorStop(0.18, '#FFB3C6');
+  grad.addColorStop(0.55, '#FF4499');
+  grad.addColorStop(1,    '#C2185B');
+  ctx.fillStyle = grad;
+  _heartPath(ctx, cx, cy, r);
+  ctx.fill();
+  const shine = ctx.createRadialGradient(cx - r * 0.35, cy - r * 0.55, 0, cx - r * 0.35, cy - r * 0.35, r * 0.55);
+  shine.addColorStop(0, 'rgba(255,255,255,0.75)');
+  shine.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = shine;
+  ctx.beginPath();
+  ctx.arc(cx - r * 0.35, cy - r * 0.55, r * 0.55, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+// Tiny filled heart particle for the sparkle trail in the magic-garden sweep.
+function drawTinyHeart(ctx, cx, cy, r, color) {
+  ctx.save();
+  ctx.fillStyle = color;
+  _heartPath(ctx, cx, cy, r);
+  ctx.fill();
+  ctx.restore();
+}
+
 // A glowing diamond gem (rhombus with highlight facet), centred at (cx, cy)
 // with half-height r — the centrepiece of the diamond-kingdom cleanup sweep.
 function drawDiamondGem(ctx, cx, cy, r, color) {
@@ -2239,7 +2288,7 @@ const WORLDS = {
 
   /* ─── 🌸 Magic garden (photo + soft writing zone) ─────────── */
   magicGarden: {
-    rewardLabel:       '🌸 הקסם מנקה',
+    rewardLabel:       '💖 לב קסום מנקה',
     rewardBtnGradient: 'linear-gradient(135deg,#FF80AB,#CE93D8 60%,#FFD700)',
     guideStrokeColor:  '#7B1FA2',
     guideShadowColor:  'rgba(255,255,255,0.92)',
@@ -2249,7 +2298,7 @@ const WORLDS = {
     childOutlineColor: '#FFFFFF',
     childShadowColor:  'rgba(255,180,210,0.70)',
     childLineWidth:    15,
-    msgReward:         'אבקת הקסם עוברת בעדינות ומנקה',
+    msgReward:         'לב קסום מנקה בעדינות ומנצנץ',
     msgClear:          'ננסה שוב ברוגע',
     writingPad:        getMagicGardenPad,
 
@@ -2262,30 +2311,35 @@ const WORLDS = {
     },
 
     rewardAnimation(ctx, snap, W, H, onDone, gen) {
-      const DUR    = 2400, t0 = performance.now();
-      const cloudR = Math.max(W, H) * 0.28;
-      const COLORS = ['#FFB3C6', '#CE93D8', '#FFD700', '#FF80AB', '#80DEEA', '#FFFFFF'];
-      const sparkles = Array.from({ length: 20 }, () => ({
-        dx:    (Math.random() - 0.5) * cloudR * 2.4,
-        dy:    (Math.random() - 0.5) * cloudR * 1.8,
-        r:     1.5 + Math.random() * 2.8,
-        color: COLORS[Math.floor(Math.random() * COLORS.length)],
-        phase: Math.random() * Math.PI * 2,
+      const DUR    = 2600, t0 = performance.now();
+      const heartR = Math.max(W, H) * 0.30;
+      const COLORS = ['#FF69B4', '#FF1493', '#FFB3C6', '#FF80AB', '#FFD700', '#FF4499', '#FFF0F5', '#FFD6E8'];
+      const sparkles = Array.from({ length: 28 }, () => ({
+        dx:      (Math.random() - 0.5) * heartR * 2.8,
+        dy:      (Math.random() - 0.5) * heartR * 2.2,
+        r:       2.5 + Math.random() * 4.0,
+        color:   COLORS[Math.floor(Math.random() * COLORS.length)],
+        phase:   Math.random() * Math.PI * 2,
+        isHeart: Math.random() < 0.45,
       }));
       (function frame(now) {
         if (gen !== animGen) return;
         const raw = Math.min((now - t0) / DUR, 1);
-        const cx  = -cloudR + raw * (W + cloudR * 2);
+        const cx  = -heartR * 1.5 + raw * (W + heartR * 3.0);
         ctx.putImageData(snap, 0, 0);
         const cleanW = Math.max(0, Math.floor(cx));
         if (cleanW > 0 && baseSnap) {
           ctx.putImageData(baseSnap, 0, 0, 0, 0, cleanW, H);
         }
-        drawCloud(ctx, cx, H / 2, cloudR);
+        drawMagicHeart(ctx, cx, H / 2, heartR);
         sparkles.forEach(s => {
-          const tw = 0.5 + 0.5 * Math.sin(now * 0.006 + s.phase);
-          ctx.globalAlpha = 0.5 + 0.5 * tw;
-          drawSparkleStar(ctx, cx + s.dx, H / 2 + s.dy, s.r * 1.6, s.color);
+          const tw = 0.5 + 0.5 * Math.sin(now * 0.007 + s.phase);
+          ctx.globalAlpha = 0.65 + 0.35 * tw;
+          if (s.isHeart) {
+            drawTinyHeart(ctx, cx + s.dx, H / 2 + s.dy, s.r * 1.8, s.color);
+          } else {
+            drawSparkleStar(ctx, cx + s.dx, H / 2 + s.dy, s.r * 1.9, s.color);
+          }
         });
         ctx.globalAlpha = 1;
         raw < 1 ? requestAnimationFrame(frame) : onDone();
